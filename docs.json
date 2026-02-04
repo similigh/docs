@@ -12,14 +12,19 @@
   "navigation": {
     "tabs": [
       {
-        "tab": "Documentation",
+        "tab": "Getting Started",
         "groups": [
           {
-            "group": "Getting Started",
+            "group": "Introduction",
             "pages": [
               "index",
               "overview/features",
-              "overview/architecture",
+              "overview/architecture"
+            ]
+          },
+          {
+            "group": "Choose Your Path",
+            "pages": [
               "getting-started/choose-your-setup",
               "getting-started/patterns-overview"
             ]
@@ -45,7 +50,12 @@
               "configuration/permissions",
               "setup/github-action-reference"
             ]
-          },
+          }
+        ]
+      },
+      {
+        "tab": "Guides",
+        "groups": [
           {
             "group": "Core Features",
             "pages": [
@@ -65,12 +75,22 @@
               "guides/deployment",
               "guides/troubleshooting"
             ]
-          },
+          }
+        ]
+      },
+      {
+        "tab": "Reference",
+        "groups": [
           {
-            "group": "CLI & Technical Reference",
+            "group": "CLI Reference",
             "pages": [
               "reference/cli/process-command",
-              "reference/cli/index-command",
+              "reference/cli/index-command"
+            ]
+          },
+          {
+            "group": "Technical Reference",
+            "pages": [
               "reference/config-schema",
               "reference/environment-variables",
               "reference/pipeline/steps",
@@ -78,6 +98,17 @@
               "reference/integrations/gemini",
               "reference/integrations/qdrant",
               "reference/integrations/github"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "Contribution",
+        "groups": [
+          {
+            "group": "Community",
+            "pages": [
+              "contribution"
             ]
           }
         ]
@@ -91,9 +122,9 @@
           "icon": "github"
         },
         {
-          "anchor": "Issues",
-          "href": "https://github.com/similigh/simili-bot/issues",
-          "icon": "circle-alert"
+          "anchor": "Star on GitHub",
+          "href": "https://github.com/similigh/simili-bot",
+          "icon": "star"
         }
       ]
     }
