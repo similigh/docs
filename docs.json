@@ -168,5 +168,8 @@
   "layout": "sidenav",
   "search": {
     "prompt": "Search documentation..."
+  },
+  "metadata": {
+    "og:image": "https://simili.mintlify.app/og-image.png"
   }
 }
