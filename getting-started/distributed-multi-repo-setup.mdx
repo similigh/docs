@@ -5,65 +5,61 @@ description: "Setup Simili Bot across multiple repositories with team autonomy (
 
 # Distributed Multi-Repository Setup
 
-Set up Simili Bot across multiple repositories with each team managing their own configuration while sharing a unified knowledge base.
-
-This guide covers **Pattern C** — the distributed multi-repository pattern.
+Set up Simili Bot across multiple repositories with each team managing their own configuration while sharing a unified organization knowledge base. This is **Pattern C**.
 
 ## Prerequisites
-1. Multiple GitHub repositories to manage
-2. Qdrant API Key & URL
-3. Gemini API Key
-4. Organization-level GitHub secrets configured
+1.  Multiple GitHub repositories to manage.
+2.  Qdrant API Key & URL.
+3.  Gemini API Key.
+4.  Organization-level GitHub secrets configured.
 
 ---
 
 ## Setup Steps
 
-````carousel
-### Step 1: Base Configuration (Optional)
-Create a shared configuration repository (e.g., `simili-config`) with a `base-config.yaml` to store common settings like Qdrant URL and collection.
+<Steps>
+  <Step title="Base Configuration (Optional)">
+    Create a shared configuration repository (e.g., `simili-config`) with a `base-config.yaml` to store common settings like Qdrant URL and collection.
 
-```yaml
-qdrant:
-  url: "https://your-cluster.qdrant.io:6333"
-  collection: "org-issues"
-defaults:
-  cross_repo_search: true
-```
+    ```yaml
+    qdrant:
+      url: "https://your-cluster.qdrant.io:6333"
+      collection: "org-issues"
+    defaults:
+      cross_repo_search: true
+    ```
+  </Step>
+  <Step title="Organization-Level Secrets">
+    Add `ORG_QDRANT_URL`, `ORG_QDRANT_API_KEY`, and `ORG_GEMINI_API_KEY` to your organization-level secrets so all repos can access the same knowledge base securely.
+  </Step>
+  <Step title="Configure Repositories">
+    In each repository, create `.github/simili.yaml` extending the shared base:
 
-<!-- slide -->
-### Step 2: Org-Level Secrets
-Add `ORG_QDRANT_URL`, `ORG_QDRANT_API_KEY`, and `ORG_GEMINI_API_KEY` to your organization-level secrets so all repos can access the same knowledge base.
+    ```yaml
+    extends: "https://raw.githubusercontent.com/your-org/simili-config/main/base-config.yaml"
+    repositories:
+      - org: "your-org"
+        repo: "backend"
+        description: "REST APIs for the backend service"
+    ```
+  </Step>
+  <Step title="Create Workflows">
+    In each repository, create `.github/workflows/simili-bot.yml` using the organization secrets:
 
-### Step 3: Configure Repositories
-In each repository, create `.github/simili.yaml` extending the shared base:
-
-```yaml
-extends: "https://raw.githubusercontent.com/your-org/simili-config/main/base-config.yaml"
-repositories:
-  - org: "your-org"
-    repo: "backend"
-    description: "REST APIs"
-```
-
-<!-- slide -->
-### Step 4: Create Workflows
-In each repository, create `.github/workflows/simili-bot.yml` using the organization secrets:
-
-```yaml
-steps:
-  - uses: similigh/simili-bot@v0.1.0
-    env:
-      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      QDRANT_URL: ${{ secrets.ORG_QDRANT_URL }}
-      QDRANT_API_KEY: ${{ secrets.ORG_QDRANT_API_KEY }}
-      GEMINI_API_KEY: ${{ secrets.ORG_GEMINI_API_KEY }}
-```
-
-<!-- slide -->
-### Step 5: Test Cross-Repo Search
-Open issues with similar topics across different repositories. Simili Bot should identify them as related, even across repository boundaries!
-````
+    ```yaml
+    steps:
+      - uses: similigh/simili-bot@v0.1.0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          QDRANT_URL: ${{ secrets.ORG_QDRANT_URL }}
+          QDRANT_API_KEY: ${{ secrets.ORG_QDRANT_API_KEY }}
+          GEMINI_API_KEY: ${{ secrets.ORG_GEMINI_API_KEY }}
+    ```
+  </Step>
+  <Step title="Test Cross-Repo Search">
+    Open issues with similar topics across different repositories. Simili Bot should identify them as related, even across repository boundaries, providing a unified view of your organization's issues.
+  </Step>
+</Steps>
 
 ---
 
@@ -71,10 +67,10 @@ Open issues with similar topics across different repositories. Simili Bot should
 
 <AccordionGroup>
   <Accordion title="Cross-repo search doesn't work">
-    Ensure `cross_repo_search: true` is enabled in your base configuration and all repositories are indexing to the same Qdrant collection.
+    Ensure `cross_repo_search: true` is enabled in your base configuration and all repositories are indexing to exactly the same Qdrant collection.
   </Accordion>
   <Accordion title="Configuration not found">
-    Verify the `extends` URL is correct and publicly accessible (use the Raw GitHub URL).
+    Verify the `extends` URL is correct and publicly accessible. Ensure you are using the **Raw** GitHub URL.
   </Accordion>
 </AccordionGroup>
 

@@ -5,54 +5,69 @@ description: Deep dive into Simili Bot's modular architecture
 
 # Architecture Overview
 
-Simili Bot uses a modular, pipeline-based architecture designed for flexibility and extensibility.
+Simili Bot uses a modular, pipeline-based architecture designed for flexibility and extensibility. It is built to handle organization-scale issue management while maintaining a small, efficient footprint.
 
 ## System Design
 
-````carousel
-### Global Architecture
-![Architecture Diagram](file:///Users/kaviru/Downloads/docs/public/images/simili-architecture.png)
+Simili Bot acts as a bridge between GitHub events and AI-powered analysis engines. It processes events sequentially through a customizable pipeline.
 
-Simili Bot connects GitHub events to AI analysis (Gemini) and Vector Storage (Qdrant) through a highly modular pipeline engine.
+### High-Level Architecture
 
-<!-- slide -->
-### Pipeline Steps (13 Total)
-The pipeline runs through 13 discrete steps to ensure thorough processing:
+1.  **Event Source**: GitHub Actions or the Simili CLI provides the issue context.
+2.  **Pipeline Engine**: Processes the data through 13 discrete steps.
+3.  **Integrations**: Communicates with external services like Gemini (AI), Qdrant (Vector DB), and GitHub (API).
 
-1. **Gatekeeper**: Auth & repo check
-2. **Command Handler**: Bot command parsing
-3. **Search & Detect**: Semantic search & duplicates
-4. **Triage & Quality**: AI labeling & assessment
-5. **Execute**: Post results back to GitHub
-6. **Index**: Store for future searches
-````
+### Pipeline Steps
+
+The pipeline is composed of distinct modules that handle specific logic:
+
+<Steps>
+  <Step title="Validation">
+    **Gatekeeper**: Verifies that the repository and user are authorized in the configuration.
+  </Step>
+  <Step title="Command Parsing">
+    **Command Handler**: Identifies and processes specific `@simili-bot` commands in issue comments.
+  </Step>
+  <Step title="Analysis">
+    **Search & Detect**: Performs semantic search and identifies potential duplicates.
+  </Step>
+  <Step title="Assessment">
+    **Triage & Quality**: Uses AI to assess issue description quality and suggest labels.
+  </Step>
+  <Step title="Action">
+    **Execute**: Posts results back to GitHub, applies labels, or transfers issues.
+  </Step>
+  <Step title="Persistence">
+    **Index**: Stores the issue embeddings in Qdrant for future semantic searches.
+  </Step>
+</Steps>
 
 ---
 
 ## Core Components
 
-<AccordionGroup>
-  <Accordion title="Configuration Layer">
-    Handles YAML loading, environment variable expansion, and complex inheritance logic using the `extends` keyword.
-  </Accordion>
-  <Accordion title="Pipeline Engine">
-    A step-based execution model where each step implements a common interface and operates on a shared `Context` object.
-  </Accordion>
-  <Accordion title="Integration Layer">
-    High-performance clients for Gemini (AI), Qdrant (Vector DB), and GitHub (API v3/GraphQL).
-  </Accordion>
-</AccordionGroup>
+### Configuration Layer
+Handles YAML loading, environment variable expansion, and complex inheritance logic using the `extends` keyword. This allows large organizations to maintain one base config that all other repositories inherit from.
+
+### Pipeline Engine
+A step-based execution model where each step implements a common interface and operates on a shared `Context` object. This ensures that new features can be added as isolated modules without complexity creep.
+
+### Integration Layer
+High-performance clients for:
+*   **Gemini**: AI-powered text analysis and embeddings.
+*   **Qdrant**: Low-latency vector search.
+*   **GitHub**: Comprehensive management via REST (v3) and GraphQL APIs.
 
 ---
 
-## Technical Specs
+## Technical Specifications
 
-| Aspect | Tech |
-|--------|------|
+| Aspect | Technology Stack |
+| :--- | :--- |
 | **Language** | Go 1.24 |
-| **AI** | Google Gemini |
-| **Vector DB** | Qdrant |
-| **Deployment**| Docker / Actions |
+| **AI Engine** | Google Gemini (Embeddings + LLM) |
+| **Vector DB** | Qdrant (Hybrid Search capable) |
+| **Deployment** | Docker containers or GitHub Actions |
 
 ---
 

@@ -5,82 +5,76 @@ description: "Setup Simili Bot with centralized control across multiple reposito
 
 # Centralized Multi-Repository Setup
 
-Set up Simili Bot with a central control repository that processes issues across your entire organization.
-
-This guide covers **Pattern B** — the centralized multi-repository pattern for organization-wide automation and unified control.
+Set up Simili Bot with a central control repository that processes issues across your entire organization. This is **Pattern B**, ideal for unified management.
 
 ## Prerequisites
-1. Multiple GitHub repositories to manage
-2. Qdrant API Key & URL
-3. Gemini API Key
-4. Elevated GitHub Permissions (PAT or GitHub App)
+1.  Multiple GitHub repositories to manage.
+2.  Qdrant API Key & URL.
+3.  Gemini API Key.
+4.  Elevated GitHub Permissions (PAT or GitHub App).
 
 ---
 
 ## Setup Steps
 
-````carousel
-### Step 1: Create Control Repository
-Create a new private repository (e.g., `simili-bot-control`) to host your master configuration and workflows.
+<Steps>
+  <Step title="Create Control Repository">
+    Create a new private repository (e.g., `simili-bot-control`) to host your master configuration and workflows.
+  </Step>
+  <Step title="Add Master Configuration">
+    Create `.github/simili.yaml` in the control repo:
 
-### Step 2: Master Configuration
-Create `.github/simili.yaml` in the control repo:
+    ```yaml
+    qdrant:
+      url: "https://your-cluster.qdrant.io:6333"
+      api_key: "${QDRANT_API_KEY}"
+      collection: "org-issues"
 
-```yaml
-qdrant:
-  url: "https://your-cluster.qdrant.io:6333"
-  api_key: "${QDRANT_API_KEY}"
-  collection: "org-issues"
+    defaults:
+      cross_repo_search: true
 
-defaults:
-  cross_repo_search: true
+    repositories:
+      - org: "your-org"
+        repo: "backend"
+      - org: "your-org"
+        repo: "frontend"
+    ```
+  </Step>
+  <Step title="Configure Authentication">
+    Pattern B requires elevated permissions. Add a Personal Access Token (PAT) with `repo` scope to your control repo secrets as `GITHUB_TOKEN_PAT`.
+  </Step>
+  <Step title="Organization Secrets">
+    Add `QDRANT_URL`, `QDRANT_API_KEY`, and `GEMINI_API_KEY` to your organization-level secrets and grant access to the control repository.
+  </Step>
+  <Step title="Create Workflow">
+    Create `.github/workflows/simili-bot.yml` in the control repo:
 
-repositories:
-  - org: "your-org"
-    repo: "backend"
-  - org: "your-org"
-    repo: "frontend"
-```
+    ```yaml
+    name: Simili Bot - Scheduled
+    on:
+      schedule:
+        - cron: '*/5 * * * *'
+      workflow_dispatch:
 
-<!-- slide -->
-### Step 3: Configure Authentication
-Pattern B requires elevated permissions. Add a Personal Access Token (PAT) with `repo` scope to your control repo secrets as `GITHUB_TOKEN_PAT`.
-
-### Step 4: Organization Secrets
-Add `QDRANT_URL`, `QDRANT_API_KEY`, and `GEMINI_API_KEY` to your organization-level secrets and grant access to the control repository.
-
-<!-- slide -->
-### Step 5: Create Workflow (Scheduled)
-Create `.github/workflows/simili-bot.yml` in the control repo:
-
-```yaml
-name: Simili Bot - Scheduled
-on:
-  schedule:
-    - cron: '*/5 * * * *'
-  workflow_dispatch:
-
-jobs:
-  process:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - uses: similigh/simili-bot@v0.1.0
-        with:
-          command: "process"
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN_PAT }}
-          QDRANT_URL: ${{ secrets.QDRANT_URL }}
-          QDRANT_API_KEY: ${{ secrets.QDRANT_API_KEY }}
-          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
-```
-
-<!-- slide -->
-### Step 6: Test It Out
-1. Go to the **Actions** tab in your control repo.
-2. Manually trigger the **Simili Bot - Scheduled** workflow.
-3. Verify that the bot processes issues in your target repositories.
-````
+    jobs:
+      process:
+        runs-on: ubuntu-latest
+        steps:
+          - uses: actions/checkout@v3
+          - uses: similigh/simili-bot@v0.1.0
+            with:
+              command: "process"
+            env:
+              GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN_PAT }}
+              QDRANT_URL: ${{ secrets.QDRANT_URL }}
+              QDRANT_API_KEY: ${{ secrets.QDRANT_API_KEY }}
+              GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+    ```
+  </Step>
+  <Step title="Submit & Test">
+    Go to the **Actions** tab in your control repo and manually trigger the workflow to ensure it can reach your target repositories.
+  </Step>
+</Steps>
 
 ---
 
@@ -88,13 +82,10 @@ jobs:
 
 <AccordionGroup>
   <Accordion title="Permission Denied error">
-    Ensure your PAT has the `repo` scope and is correctly added as a secret in the control repository. If using a GitHub App, verify it is installed on all target repos.
+    Ensure your PAT has the `repo` scope and is correctly added as a secret in the control repository.
   </Accordion>
   <Accordion title="Issues not being processed">
-    Verify that each target repository is listed in the `repositories` section of your master `simili.yaml` with `enabled: true`.
-  </Accordion>
-  <Accordion title="Workflow times out">
-    If processing many repositories, consider increasing the cron interval or splitting the configuration into multiple workflows.
+    Verify that each target repository is correctly listed in the `repositories` section of your master `simili.yaml`.
   </Accordion>
 </AccordionGroup>
 

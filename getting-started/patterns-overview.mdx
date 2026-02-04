@@ -1,181 +1,57 @@
 ---
-title: "Deployment Patterns Overview"
-description: "Detailed explanation of the three Simili Bot deployment patterns"
+title: "Patterns Overview"
+description: "Understand the different ways to deploy Simili Bot"
 ---
 
-# Deployment Patterns Overview
+# Patterns Overview
 
-Simili Bot supports three deployment patterns that address different organizational needs.
+Simili Bot is designed to adapt to your organization's workflow. Whether you're managing a single project or a complex microservices architecture, there's a pattern that fits.
 
-## Pattern Comparison
+## The Three Patterns
 
-````carousel
+Choose a pattern based on your repository structure and how much autonomy your individual teams require.
+
+### Pattern A: Single Repository
+The simplest setup, where the bot lives and runs entirely within one repository.
+
+*   **Best For**: Small teams, standalone projects.
+*   **Primary Benefit**: Zero external dependencies and fast setup.
+*   **Permissions**: Default `GITHUB_TOKEN`.
+
+### Pattern B: Centralized Multi-Repository
+One "Control" repository manages issues across multiple "Target" repositories.
+
+*   **Best For**: Organization-wide control, compliance, and unified routing.
+*   **Primary Benefit**: One place to manage all configuration and automation.
+*   **Permissions**: Elevated (GitHub App or PAT).
+
+### Pattern C: Distributed Multi-Repository
+Every repository has its own bot and config, but they all share a centralized knowledge base.
+
+*   **Best For**: Microservices, high team autonomy, cross-team discovery.
+*   **Primary Benefit**: Teams control their own bot while benefiting from organization-wide search.
+*   **Permissions**: Default `GITHUB_TOKEN` per repo.
+
+---
+
+## Comparison Matrix
+
 | Feature | Pattern A | Pattern B | Pattern C |
-|---------|-----------|-----------|-----------|
-| **Setup Time** | 5 min | 10-15 min | 15-20 min |
-| **Permissions** | Default | Elevated | Default |
-| **Best For** | Single Projects | Org-wide control | Team autonomy |
-| **Cross-Repo** | No | Yes | Yes |
-
-<!-- slide -->
-
-```mermaid
-graph TD
-    start["How many repositories<br/>do you need to manage?"]
-    start -->|One| patternA["Pattern A:<br/>Single Repository"]
-    start -->|Multiple| question["Where should<br/>processing happen?"]
-    question -->|In each repo| patternC["Pattern C:<br/>Distributed"]
-    question -->|Centralized| patternB["Pattern B:<br/>Centralized"]
-```
-````
+| :--- | :--- | :--- | :--- |
+| **Setup Speed** | < 5 mins | 15+ mins | 15+ mins |
+| **Team Autonomy** | High | Low | High |
+| **Central Control** | Local | Unified | Shared Defaults |
+| **Cross-Repo Search** | No | Yes | Yes |
+| **Permissions** | Basic | Elevated | Basic |
 
 ---
 
-## Pattern A: Single Repository
+## Choosing Your Path
 
-Simple, self-contained setup for managing one repository.
-
-````carousel
-### Architecture & Files
-![Pattern A Architecture](file:///Users/kaviru/Downloads/docs/public/images/architecture-pattern-a.png)
-
-**File Structure:**
-```
-your-repo/
-├── .github/
-│   ├── simili.yaml
-│   └── workflows/
-│       └── simili-bot.yml
-```
-
-<!-- slide -->
-### Configuration Example
-
-```yaml
-# .github/simili.yaml
-qdrant:
-  url: "https://your-cluster.qdrant.io:6333"
-  api_key: "${QDRANT_API_KEY}"
-  collection: "issues"
-
-defaults:
-  cross_repo_search: false
-
-repositories:
-  - org: "your-org"
-    repo: "your-repo"
-    enabled: true
-```
-
-<!-- slide -->
-### When to Use
-| Scenario | ✅ Good Fit |
-|----------|-----------|
-| Single open-source project | ✅ |
-| One repository, one team | ✅ |
-| simplest possible setup | ✅ |
-
-**Pros:** No elevated permissions, fast setup, self-contained.
-**Cons:** No cross-repo capabilities.
-````
-
----
-
-## Pattern B: Centralized Multi-Repository
-
-Ideal for organizations that want unified control through a single "control repo".
-
-````carousel
-### Architecture & Flow
-![Pattern B Architecture](file:///Users/kaviru/Downloads/docs/public/images/architecture-pattern-b.png)
-
-**Flow:**
-1. Issue created in target repo
-2. Control repo triggered
-3. Bot processes and posts analysis to target repo
-4. Optional: Router transfers issue
-
-<!-- slide -->
-### Master Configuration
-
-```yaml
-# In moduli-bot-control repo
-qdrant:
-  collection: "org-issues"
-
-defaults:
-  cross_repo_search: true
-
-repositories:
-  - org: "my-org"
-    repo: "backend"
-  - org: "my-org"
-    repo: "frontend"
-  - org: "my-org"
-    repo: "mobile"
-```
-
-<!-- slide -->
-### When to Use
-| Scenario | ✅ Good Fit |
-|----------|-----------|
-| Org-wide automation | ✅ |
-| Unified compliance | ✅ |
-| Cross-repo routing | ✅ |
-
-**Pros:** Unified control, single config point.
-**Cons:** Requires PAT/App token, central point of failure.
-````
-
----
-
-## Pattern C: Distributed Multi-Repository
-
-Balance team autonomy with shared organization knowledge.
-
-````carousel
-### Architecture & Shared Knowledge
-![Pattern C Architecture](file:///Users/kaviru/Downloads/docs/public/images/architecture-pattern-c.png)
-
-**Flow:**
-1. Issue created in any repo
-2. Local workflow runs independently
-3. Bot searches shared Qdrant collection
-4. Shared knowledge across ALL repos
-
-<!-- slide -->
-### Repository Config (Inherit)
-
-```yaml
-# backend/.github/simili.yaml
-extends: "https://raw.githubusercontent.com/my-org/simili-config/main/base-config.yaml"
-
-repositories:
-  - org: "my-org"
-    repo: "backend"
-    description: "REST APIs"
-```
-
-**Note:** All repos extend a shared base but manage their own workflows.
-
-<!-- slide -->
-### When to Use
-| Scenario | ✅ Good Fit |
-|----------|-----------|
-| Multiple teams | ✅ |
-| Team autonomy needed | ✅ |
-| Standard permissions | ✅ |
-
-**Pros:** High autonomy, shared search knowledge, default tokens.
-**Cons:** More workflow files to manage.
-````
-
----
-
-## Next Steps
+If you're just starting out, we recommend **Pattern A**. It allows you to experience the value of Simili Bot immediately without organization-level configuration.
 
 <CardGroup cols={3}>
   <Card title="Pattern A Setup" href="/getting-started/single-repo-setup" icon="rocket" />
-  <Card title="Pattern B Setup" href="/getting-started/centralized-multi-repo-setup" icon="server" />
-  <Card title="Pattern C Setup" href="/getting-started/distributed-multi-repo-setup" icon="network" />
+  <Card title="Pattern B Setup" href="/getting-started/centralized-multi-repo-setup" icon="building" />
+  <Card title="Pattern C Setup" href="/getting-started/distributed-multi-repo-setup" icon="network-wired" />
 </CardGroup>

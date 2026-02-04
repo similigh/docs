@@ -5,22 +5,23 @@ description: Install Simili Bot v0.1.0
 
 # Installation
 
-Choose the installation method that best fits your needs.
+Simili Bot can be deployed in various ways to suit your environment. Choose the method that best fits your workflow.
 
 ## Prerequisites
-1. **GitHub Account**
-2. **Google Gemini API Key** ([Google AI Studio](https://aistudio.google.com/app/apikeys))
-3. **Qdrant Vector Database** ([Qdrant Cloud](https://cloud.qdrant.io))
+
+Before you begin, ensure you have the following credentials ready:
+1.  **GitHub Account** with access to your repositories.
+2.  **Google Gemini API Key**: Obtain one from [Google AI Studio](https://aistudio.google.com/app/apikeys).
+3.  **Qdrant Vector Database**: Use [Qdrant Cloud](https://cloud.qdrant.io) for a managed instance or host your own.
 
 ---
 
-## Installation Methods
+## Deployment Options
 
-````carousel
-### GitHub Action (Easiest)
-Runs automatically on issue events.
+### GitHub Action (Recommended)
+The easiest way to get started. Simili Bot runs automatically on your chosen issue events.
 
-Create `.github/workflows/simili-bot.yml`:
+Add this step to your `.github/workflows/simili-bot.yml`:
 ```yaml
 name: Simili Bot
 on:
@@ -41,9 +42,8 @@ jobs:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
 ```
 
-<!-- slide -->
 ### Docker
-Containerized for self-hosting.
+Ideal for self-hosted environments or custom CI/CD pipelines.
 
 ```bash
 docker run -e QDRANT_URL="..." \
@@ -55,15 +55,16 @@ docker run -e QDRANT_URL="..." \
            process --config /config/simili.yaml
 ```
 
-<!-- slide -->
 ### Binary
-Single executable - build from source.
+For those who prefer running native executables.
 
 ```bash
+# Build from source
 go build -o simili ./cmd/simili
+
+# Check installation
 ./simili --version
 ```
-````
 
 ---
 
@@ -71,10 +72,10 @@ go build -o simili ./cmd/simili
 
 <AccordionGroup>
   <Accordion title="API key is invalid">
-    Verify your Gemini API key in Google AI Studio and ensure the Generative AI API is enabled in your project.
+    Double-check your Gemini API key in Google AI Studio and ensure the **Generative AI API** is enabled for your project.
   </Accordion>
   <Accordion title="Cannot connect to Qdrant">
-    Verify your Qdrant URL format (include port 6333) and check that your API key is correct.
+    Ensure your Qdrant URL includes the correct port (usually `6333`) and that your API key has the necessary read/write permissions for the collection.
   </Accordion>
 </AccordionGroup>
 
@@ -83,7 +84,7 @@ go build -o simili ./cmd/simili
 ## Next Steps
 
 <CardGroup cols={3}>
-  <Card title="Quick Start (Pattern A)" href="/getting-started/single-repo-setup" />
-  <Card title="Configuration Overview" href="/configuration/overview" />
-  <Card title="Action Reference" href="/setup/github-action-reference" />
+  <Card title="Quick Start (Pattern A)" href="/getting-started/single-repo-setup" icon="rocket" />
+  <Card title="Configuration Overview" href="/configuration/overview" icon="gear" />
+  <Card title="Action Reference" href="/setup/github-action-reference" icon="file-code" />
 </CardGroup>

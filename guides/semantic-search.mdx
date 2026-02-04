@@ -5,63 +5,69 @@ description: Find related issues using AI embeddings
 
 # Semantic Search
 
-Simili Bot uses semantic search to find related issues across your repositories based on meaning, not just keywords.
+Simili Bot uses semantic search to find related issues across your repositories based on meaning, not just keywords. This approach allows the bot to identify relationships that traditional keyword-based search would miss.
 
 ## How It Works
 
-````carousel
 ### Theory vs Reality
-**Traditional Search:**
-Only finds issues with exact word matches (e.g., searching "login" misses "authentication failures").
 
-**Semantic Search:**
-AI understands that "Can't authenticate" is semantically related to "Sign-in issues" and "Login broken".
+In a traditional search system, an issue titled "Login button doesn't work" might be missed if you search for "authentication failures". Semantic search bridges this gap.
 
-<!-- slide -->
+*   **Traditional Search**: Only finds issues with exact word matches.
+*   **Semantic Search**: AI understands that "Can't authenticate" is semantically related to "Sign-in issues" and "Login broken".
+
 ### The Process
-![Semantic Search Process](file:///Users/kaviru/Downloads/docs/public/images/semantic-search-flow.png)
 
-1. **Embedding**: Text (title, body, comments) is converted into a 768-dimensional vector.
-2. **Indexing**: Vectors are stored in Qdrant with issue metadata.
-3. **Querying**: New issues are compared against the entire database in milliseconds.
-````
+Simili Bot follows a three-step process to enable semantic discovery:
+
+<Steps>
+  <Step title="Embedding">
+    Text from the issue title, body, and comments is converted into a 768-dimensional vector using Google's `text-embedding-004` model.
+  </Step>
+  <Step title="Indexing">
+    These vectors are stored in the Qdrant vector database along with the issue's metadata (repository, labels, author).
+  </Step>
+  <Step title="Querying">
+    When a new issue arrives, its embedding is compared against the entire database using cosine similarity to find the most relevant historical issues in milliseconds.
+  </Step>
+</Steps>
 
 ---
 
 ## Configuration
 
-````carousel
+Tuning the search sensitivity is crucial for balancing noise and discovery.
+
 ### Tuning Thresholds
-Lower threshold = more results, higher threshold = more precise.
+
+The `similarity_threshold` determines how strict the bot is when suggesting related issues.
 
 | Level | Value | Effect |
-|-------|-------|--------|
-| Conservative | 0.80 | Only direct matches |
-| Recommended | 0.70 | Good balance |
-| Permissive | 0.60 | Loose relations |
+| :--- | :--- | :--- |
+| **Conservative** | `0.80` | Only returns issues that are nearly identical in meaning. |
+| **Recommended** | `0.70` | Provides a good balance of accuracy and broad discovery. |
+| **Permissive** | `0.60` | Returns loosely related issues; higher chance of false positives. |
 
-<!-- slide -->
-### YAML Example
+### Configuration Example
+
+Add these settings to your `simili.yaml` or workflow environment:
+
 ```yaml
 defaults:
-  similarity_threshold: 0.70      # Minimum confidence
-  max_similar_to_show: 5          # Maximum results
-  cross_repo_search: true         # Search across repos
+  similarity_threshold: 0.70      # Minimum confidence score (0.0 - 1.0)
+  max_similar_to_show: 5          # Number of results to display in the comment
+  cross_repo_search: true         # Enable discovery across all configured repositories
 ```
-````
 
 ---
 
 ## Use Cases
 
-<AccordionGroup>
-  <Accordion title="Finding Duplicate Issues">
-    Instantly identify if a new bug report has already been discussed in another repo, even if the wording is completely different.
-  </Accordion>
-  <Accordion title="Pattern Recognition">
-    Detect if multiple teams are experiencing related infrastructure failures by seeing cross-repo search results in real-time.
-  </Accordion>
-</AccordionGroup>
+### Finding Duplicate Issues
+Instantly identify if a new bug report has already been discussed in another repo, even if the wording is completely different. This prevents engineers from working on the same problem in isolation.
+
+### Pattern Recognition
+Detect if multiple teams are experiencing related infrastructure failures by seeing cross-repo search results in real-time. For example, a "Database timeout" in the backend and "Slow login" in the frontend can be linked semantically.
 
 ---
 

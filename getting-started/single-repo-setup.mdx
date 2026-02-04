@@ -5,111 +5,82 @@ description: "Get Simili Bot running in a single repository in 5 minutes (Patter
 
 # Single Repository Setup
 
-Get Simili Bot v0.1.0 up and running in your GitHub repository in just 5 minutes.
-
-This guide covers **Pattern A** — the simplest deployment pattern for managing a single repository.
+This guide will help you set up Simili Bot for a single repository. This is the **Pattern A** deployment model, which is the easiest way to get started.
 
 ## Prerequisites
-
-Before starting, gather these:
-1. **Qdrant API Key & URL** from [Qdrant Cloud](https://cloud.qdrant.io)
-2. **Gemini API Key** from [Google AI Studio](https://aistudio.google.com/app/apikeys)
-3. Your **GitHub repository** where you want to enable Simili Bot
+*   A GitHub repository where you have admin access.
+*   Qdrant API Key & URL.
+*   Gemini API Key.
 
 ---
 
 ## Setup Steps
 
-````carousel
-### Step 1: Create Configuration (1 min)
+Follow these steps to enable AI-powered issue management.
 
-Create `.github/simili.yaml` in your repository:
+<Steps>
+  <Step title="Add Configuration">
+    Create `.github/simili.yaml` in your repository root:
 
-```yaml
-qdrant:
-  url: "https://your-cluster.qdrant.io:6333"
-  api_key: "${QDRANT_API_KEY}"
-  collection: "issues"
+    ```yaml
+    qdrant:
+      url: "https://your-cluster.qdrant.io:6333"
+      api_key: "${QDRANT_API_KEY}"
+      collection: "my-repo-issues"
 
-embedding:
-  provider: "gemini"
-  api_key: "${GEMINI_API_KEY}"
+    embedding:
+      provider: "gemini"
+      api_key: "${GEMINI_API_KEY}"
 
-defaults:
-  similarity_threshold: 0.70
-  max_similar_to_show: 5
-  cross_repo_search: false
+    repositories:
+      - org: "your-username"
+        repo: "your-repo"
+        enabled: true
+    ```
+  </Step>
+  <Step title="Store Secrets">
+    Go to **Settings > Secrets and variables > Actions** in your GitHub repository and add:
+    *   `QDRANT_API_KEY`
+    *   `GEMINI_API_KEY`
+    *   `QDRANT_URL` (optional, if not hardcoded in config)
+  </Step>
+  <Step title="Create Workflow">
+    Create `.github/workflows/simili-bot.yml` with the following content:
 
-repositories:
-  - org: "your-username"
-    repo: "your-repo"
-    enabled: true
-    description: "Brief repository description"
-```
-
-<!-- slide -->
-### Step 2: Add GitHub Secrets (1 min)
-
-In your GitHub repository under **Settings** → **Secrets and variables** → **Actions**, add these three secrets:
-
-| Secret Name | Value |
-|-------------|-------|
-| `QDRANT_URL` | `https://your-cluster.qdrant.io:6333` |
-| `QDRANT_API_KEY` | Your Qdrant API key |
-| `GEMINI_API_KEY` | Your Gemini API key |
-
-<!-- slide -->
-### Step 3: Create Workflow (2 min)
-
-Create `.github/workflows/simili-bot.yml`:
-
-```yaml
-name: Simili Bot
-on:
-  issues:
-    types: [opened, edited]
-
-jobs:
-  simili:
-    runs-on: ubuntu-latest
-    permissions:
-      issues: write
-      contents: read
-    steps:
-      - uses: similigh/simili-bot@v0.1.0
-        with:
-          command: "process"
-          config_path: ".github/simili.yaml"
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          QDRANT_URL: ${{ secrets.QDRANT_URL }}
-          QDRANT_API_KEY: ${{ secrets.QDRANT_API_KEY }}
-          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
-```
-
-<!-- slide -->
-### Step 4: Test It Out (1 min)
-
-1. **Commit and push** both files to your repository.
-2. **Open a new issue** in your repository.
-3. **Check the Actions tab** to see the workflow run.
-
-Within seconds, you should see an analysis comment on your issue!
-````
+    ```yaml
+    name: Simili Bot
+    on:
+      issues:
+        types: [opened, edited]
+    jobs:
+      simili:
+        runs-on: ubuntu-latest
+        permissions:
+          issues: write
+          contents: read
+        steps:
+          - uses: similigh/simili-bot@v0.1.0
+            env:
+              GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+              QDRANT_API_KEY: ${{ secrets.QDRANT_API_KEY }}
+              GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+    ```
+  </Step>
+  <Step title="Verification">
+    Open a new issue in your repository. You should see Simili Bot comment within a few seconds with its analysis.
+  </Step>
+</Steps>
 
 ---
 
 ## Troubleshooting
 
 <AccordionGroup>
-  <Accordion title="Workflow fails with 'Configuration not found'">
-    Verify that `.github/simili.yaml` exists at the exact path and is committed to the main branch. Check for YAML syntax errors.
+  <Accordion title="Bot is not commenting">
+    Check the **Actions** tab in your repository. If the workflow failed, review the logs for authentication or configuration errors.
   </Accordion>
-  <Accordion title="No comments appear on issues">
-    Check the **Actions** tab for errors. Ensure `permissions: issues: write` is set in your workflow and your repository is correctly listed in `simili.yaml`.
-  </Accordion>
-  <Accordion title="API key is invalid or Unauthorized">
-    Double-check your GitHub secrets for typos or extra spaces. Ensure the API keys are active in the Qdrant and Google AI Studio consoles.
+  <Accordion title="Unauthorized Error">
+    Ensure your `QDRANT_API_KEY` and `GEMINI_API_KEY` are correctly set in the repository secrets and match the environment variable names in your workflow.
   </Accordion>
 </AccordionGroup>
 
@@ -118,7 +89,6 @@ Within seconds, you should see an analysis comment on your issue!
 ## Next Steps
 
 <CardGroup cols={2}>
-  <Card title="Explore Features" icon="sparkles" href="/overview/features" />
-  <Card title="Configure Advanced Options" icon="sliders" href="/configuration/overview" />
-  <Card title="Multi-Repo Options" icon="layer-group" href="/getting-started/choose-your-setup" />
+  <Card title="Configuration Overview" icon="gear" href="/configuration/overview" />
+  <Card title="Feature Guides" icon="book" href="/guides/semantic-search" />
 </CardGroup>
