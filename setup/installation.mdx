@@ -8,62 +8,32 @@ description: Install Simili Bot v0.1.0
 Choose the installation method that best fits your needs.
 
 ## Prerequisites
+1. **GitHub Account**
+2. **Google Gemini API Key** ([Google AI Studio](https://aistudio.google.com/app/apikeys))
+3. **Qdrant Vector Database** ([Qdrant Cloud](https://cloud.qdrant.io))
 
-Before installing Simili Bot, you'll need:
-
-1. **GitHub Account** with access to repositories you want to analyze
-2. **Google Gemini API Key** for AI analysis
-   - Get it from [Google AI Studio](https://aistudio.google.com/app/apikeys)
-3. **Qdrant Vector Database** instance
-   - Free tier available at [Qdrant Cloud](https://cloud.qdrant.io)
-   - Or self-hosted via Docker
-4. **GitHub Personal Access Token** (for CLI usage)
-   - Requires `repo` and `write:checks` scopes
+---
 
 ## Installation Methods
 
-<CardGroup cols={2}>
-  <Card title="GitHub Action" href="#github-action">
-    Easiest - runs automatically on issue events
-  </Card>
-  <Card title="Docker" href="#docker">
-    Containerized - self-hosted or cloud
-  </Card>
-  <Card title="Binary" href="#binary">
-    Single executable - build from source
-  </Card>
-</CardGroup>
-
-## GitHub Action
-
-The easiest way to get started. Simili Bot runs automatically when issues are created or updated.
-
-### 1. Add Action to Your Workflow
+````carousel
+### GitHub Action (Easiest)
+Runs automatically on issue events.
 
 Create `.github/workflows/simili-bot.yml`:
-
 ```yaml
 name: Simili Bot
-
 on:
   issues:
     types: [opened, edited]
-  issue_comment:
-    types: [created, edited]
-
 jobs:
   simili:
     runs-on: ubuntu-latest
     permissions:
       issues: write
       contents: read
-      repository-projects: write
     steps:
       - uses: similigh/simili-bot@v0.1.0
-        with:
-          command: "process"
-          config_path: ".github/simili.yaml"
-          dry_run: false
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           QDRANT_URL: ${{ secrets.QDRANT_URL }}
@@ -71,224 +41,49 @@ jobs:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
 ```
 
-### 2. Add Configuration File
-
-Create `.github/simili.yaml`:
-
-```yaml
-qdrant:
-  url: ${QDRANT_URL}
-  api_key: ${QDRANT_API_KEY}
-  collection: "your-org-issues"
-
-embedding:
-  provider: "gemini"
-  api_key: ${GEMINI_API_KEY}
-  model: "text-embedding-004"
-  dimensions: 768
-
-defaults:
-  similarity_threshold: 0.70
-  max_similar_to_show: 5
-  cross_repo_search: true
-
-repositories:
-  - org: "your-org"
-    repo: "your-repo"
-    enabled: true
-    description: "Your repository description"
-
-transfer:
-  enabled: false
-  llm_routing_enabled: false
-```
-
-### 3. Add GitHub Secrets
-
-In your repository settings, add these secrets:
-
-- `QDRANT_URL`: Your Qdrant instance URL
-- `QDRANT_API_KEY`: Your Qdrant API key
-- `GEMINI_API_KEY`: Your Gemini API key
-
-The `GITHUB_TOKEN` is automatically provided by GitHub Actions.
-
-### 4. Test It Out
-
-Create a new issue in your repository. Simili Bot should process it automatically within seconds.
-
-## Docker
-
-Run Simili Bot in a Docker container for local testing or self-hosted deployment.
-
-### 1. Build from Source
+<!-- slide -->
+### Docker
+Containerized for self-hosting.
 
 ```bash
-# Clone the repository
-git clone https://github.com/similigh/simili-bot.git
-cd simili-bot
-
-# Build Docker image
-docker build -t simili-bot:latest .
-```
-
-### 2. Run Container
-
-```bash
-docker run -e QDRANT_URL="https://your-instance.qdrant.io:6333" \
-           -e QDRANT_API_KEY="your-api-key" \
-           -e GEMINI_API_KEY="your-gemini-key" \
-           -e GITHUB_TOKEN="your-github-token" \
+docker run -e QDRANT_URL="..." \
+           -e QDRANT_API_KEY="..." \
+           -e GEMINI_API_KEY="..." \
+           -e GITHUB_TOKEN="..." \
            -v $(pwd)/config:/config \
-           -v $(pwd)/events:/events \
            simili-bot:latest \
-           process --issue /events/issue.json --config /config/simili.yaml
+           process --config /config/simili.yaml
 ```
 
-### 3. Docker Compose (Optional)
-
-For local development with all services:
-
-```yaml
-version: '3.8'
-
-services:
-  qdrant:
-    image: qdrant/qdrant:latest
-    ports:
-      - "6333:6333"
-    volumes:
-      - qdrant_storage:/qdrant/storage
-
-  simili-bot:
-    build: .
-    environment:
-      QDRANT_URL: http://qdrant:6333
-      QDRANT_API_KEY: ${QDRANT_API_KEY}
-      GEMINI_API_KEY: ${GEMINI_API_KEY}
-      GITHUB_TOKEN: ${GITHUB_TOKEN}
-    volumes:
-      - ./config:/config
-      - ./events:/events
-    depends_on:
-      - qdrant
-
-volumes:
-  qdrant_storage:
-```
-
-Run with:
-```bash
-docker compose up
-```
-
-## Binary
-
-Build Simili Bot from source and use the executable directly.
-
-### Requirements
-
-- Go 1.24 or higher
-- Git
-
-### Build Steps
+<!-- slide -->
+### Binary
+Single executable - build from source.
 
 ```bash
-# Clone repository
-git clone https://github.com/similigh/simili-bot.git
-cd simili-bot
-
-# Build binary
 go build -o simili ./cmd/simili
-
-# Verify installation
 ./simili --version
 ```
+````
 
-### Usage
+---
 
-```bash
-# Process a single issue (dry-run mode)
-./simili process --issue event.json --config simili.yaml --dry-run
+## Troubleshooting
 
-# Process with actual GitHub actions
-./simili process --issue event.json --config simili.yaml
+<AccordionGroup>
+  <Accordion title="API key is invalid">
+    Verify your Gemini API key in Google AI Studio and ensure the Generative AI API is enabled in your project.
+  </Accordion>
+  <Accordion title="Cannot connect to Qdrant">
+    Verify your Qdrant URL format (include port 6333) and check that your API key is correct.
+  </Accordion>
+</AccordionGroup>
 
-# Bulk index all issues
-./simili index --repo owner/repo --since 30d --workers 5
-```
-
-## Setup Verification
-
-After installation, verify everything works:
-
-### 1. Test Configuration
-
-```bash
-# With CLI
-simili process --issue test-issue.json --config simili.yaml --dry-run
-
-# With Docker
-docker run -e QDRANT_URL="..." \
-           -e GEMINI_API_KEY="..." \
-           simili-bot:latest \
-           process --issue test-issue.json --config simili.yaml --dry-run
-```
-
-### 2. Create a Test Issue
-
-Open a new issue in your repository and check:
-- Does Simili Bot process it?
-- Are comments posted?
-- Are logs showing in GitHub Actions?
-
-### 3. Check Logs
-
-**GitHub Action Logs:**
-- Go to Actions tab in your repository
-- Click on the latest workflow run
-- Check the "simili" job output
-
-**Docker Logs:**
-```bash
-docker logs <container-id>
-```
-
-**CLI Output:**
-Check terminal output when running locally
-
-## Troubleshooting Installation
-
-### "API key is invalid"
-- Verify your Gemini API key is correct
-- Check you've enabled the Generative AI API in Google Cloud
-- Ensure API key hasn't been regenerated
-
-### "Cannot connect to Qdrant"
-- Verify Qdrant URL format (https://instance.qdrant.io:6333)
-- Check API key is correct
-- Verify firewall allows outbound HTTPS connections
-
-### "GitHub token missing"
-- Ensure environment variable is set
-- Check GitHub Actions permissions in workflow
-- Verify token has required scopes
-
-### "Configuration file not found"
-- Check file path is correct and relative to current directory
-- Verify file exists and is readable
-- Check YAML syntax is valid
+---
 
 ## Next Steps
 
-<CardGroup cols={1}>
-  <Card title="Quick Start" href="/setup/quick-start">
-    Get up and running in 5 minutes
-  </Card>
-  <Card title="Configure Simili Bot" href="/configuration/overview">
-    Learn all configuration options
-  </Card>
-  <Card title="GitHub Action Setup" href="/setup/github-action">
-    Detailed GitHub Action guide
-  </Card>
+<CardGroup cols={3}>
+  <Card title="Quick Start (Pattern A)" href="/getting-started/single-repo-setup" />
+  <Card title="Configuration Overview" href="/configuration/overview" />
+  <Card title="Action Reference" href="/setup/github-action-reference" />
 </CardGroup>

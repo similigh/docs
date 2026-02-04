@@ -1,369 +1,64 @@
 ---
 title: Architecture
 description: Deep dive into Simili Bot's modular architecture
-slug: /overview/architecture
 ---
 
 # Architecture Overview
 
 Simili Bot uses a modular, pipeline-based architecture designed for flexibility and extensibility.
 
-## System Architecture
+## System Design
 
-```
-┌──────────────────────────────────────────────────┐
-│          GitHub Action / CLI Entry Point         │
-└────────────────┬─────────────────────────────────┘
-                 │
-         ┌───────▼────────┐
-         │ Load & Merge   │
-         │ Configuration  │
-         └───────┬────────┘
-                 │
-    ┌────────────┴────────────┬──────────────┐
-    │                         │              │
-┌───▼────┐  ┌──────────┐ ┌────▼──┐  ┌──────▼───┐
-│ Gemini │  │ Qdrant   │ │GitHub │  │State Mgr │
-│ (AI)   │  │(Vector)  │ │ API   │  │          │
-└────────┘  └──────────┘ └───────┘  └──────────┘
-    │           │           │           │
-    └───────────┴───────────┴───────────┘
-              │
-    ┌─────────▼──────────────────┐
-    │  Modular Pipeline Engine   │
-    │  (Step-by-step execution)  │
-    └──────────┬─────────────────┘
-               │
-    ┌──────────▼──────────────────┐
-    │  13 Composable Steps        │
-    │  - Search, Route, Triage    │
-    │  - Detect, Index, Execute   │
-    └──────────┬─────────────────┘
-               │
-    ┌──────────▼──────────────────┐
-    │  Output & Actions           │
-    │  (Comments, Labels,         │
-    │   Transfers, Metadata)      │
-    └─────────────────────────────┘
-```
+````carousel
+### Global Architecture
+![Architecture Diagram](file:///Users/kaviru/Downloads/docs/public/images/simili-architecture.png)
+
+Simili Bot connects GitHub events to AI analysis (Gemini) and Vector Storage (Qdrant) through a highly modular pipeline engine.
+
+<!-- slide -->
+### Pipeline Steps (13 Total)
+The pipeline runs through 13 discrete steps to ensure thorough processing:
+
+1. **Gatekeeper**: Auth & repo check
+2. **Command Handler**: Bot command parsing
+3. **Search & Detect**: Semantic search & duplicates
+4. **Triage & Quality**: AI labeling & assessment
+5. **Execute**: Post results back to GitHub
+6. **Index**: Store for future searches
+````
+
+---
 
 ## Core Components
 
-### 1. Configuration Layer
+<AccordionGroup>
+  <Accordion title="Configuration Layer">
+    Handles YAML loading, environment variable expansion, and complex inheritance logic using the `extends` keyword.
+  </Accordion>
+  <Accordion title="Pipeline Engine">
+    A step-based execution model where each step implements a common interface and operates on a shared `Context` object.
+  </Accordion>
+  <Accordion title="Integration Layer">
+    High-performance clients for Gemini (AI), Qdrant (Vector DB), and GitHub (API v3/GraphQL).
+  </Accordion>
+</AccordionGroup>
 
-**Responsibilities:**
-- Load YAML configuration files
-- Expand environment variables (${VAR_NAME})
-- Merge parent configurations (extends)
-- Apply defaults and overrides
-- Validate configuration schema
+---
 
-**Key Structures:**
-- `Config` - Root configuration with defaults
-- `QdrantConfig` - Vector database settings
-- `EmbeddingConfig` - AI model settings
-- `RepositoryConfig` - Per-repository settings
-- `TransferConfig` - Routing rules
+## Technical Specs
 
-**Features:**
-- Multi-level configuration hierarchy
-- Environment variable expansion
-- Remote configuration inheritance
-- Per-repository overrides
+| Aspect | Tech |
+|--------|------|
+| **Language** | Go 1.24 |
+| **AI** | Google Gemini |
+| **Vector DB** | Qdrant |
+| **Deployment**| Docker / Actions |
 
-### 2. Pipeline Engine
+---
 
-**Design Pattern:** Lego blocks with blueprints
+## Next Steps
 
-**Components:**
-- `Pipeline` - Orchestrates step execution
-- `Step` - Interface all steps implement
-- `Context` - Data carrier through pipeline
-- `Registry` - Step factory management
-- `Dependencies` - Service injection
-
-**Execution Flow:**
-```
-Step 1 (Gatekeeper)
-   ↓ [success]
-Step 2 (Command Handler)
-   ↓ [success]
-Step 3 (VectorDB Prep)
-   ↓ [success]
-... [continue through all steps]
-   ↓ [success]
-Step 13 (Pending Action Scheduler)
-   ↓ [complete]
-Output Results
-```
-
-**Context Object:**
-```go
-type Context struct {
-    Issue Issue
-    Config *Config
-    Result *Result
-    Metadata map[string]interface{}
-}
-```
-
-The context flows through all steps, accumulating results and metadata.
-
-### 3. Integration Layer
-
-#### Gemini Integration
-- **Embedder**: Converts text to vectors (text-embedding-004, 768-dim)
-- **LLM Client**: Analyzes issues for duplicates, quality, routing, triage
-- **Prompts**: Templated prompts for different analysis tasks
-
-#### GitHub Integration
-- **REST API Client**: Fetch issues, comments, create comments
-- **GraphQL Client**: Transfer issues across repositories
-- **Authentication**: OAuth2 token-based with optional elevated permissions
-
-#### Qdrant Integration
-- **gRPC Client**: High-performance vector database communication
-- **Collection Management**: Create and manage collections as needed
-- **Similarity Search**: Semantic search with scoring
-- **Point Operations**: Upsert and retrieval with payloads
-
-### 4. Pipeline Steps (13 Total)
-
-**Group 1: Validation & Preparation**
-1. **gatekeeper** - Check if repo is enabled in config
-2. **command_handler** - Process `@simili-bot` commands
-3. **vectordb_prep** - Ensure Qdrant collection exists
-
-**Group 2: Analysis & Detection**
-4. **similarity_search** - Find related issues
-5. **transfer_check** - Evaluate rule-based routing
-6. **llm_router** - AI-based repository routing
-7. **duplicate_detector** - Identify duplicates with confidence
-8. **quality_checker** - Assess issue description quality
-9. **triage** - Suggest appropriate labels
-
-**Group 3: Reporting & Execution**
-10. **response_builder** - Construct comprehensive comment
-11. **action_executor** - Post comments, apply labels, transfer issues
-12. **indexer** - Add issue to vector database
-13. **pending_action_scheduler** - Schedule delayed actions
-
-Each step:
-- Receives the same `Context` object
-- Can read previous results from `Metadata`
-- Updates `Result` with findings
-- Returns `ErrSkipPipeline` to exit early gracefully
-- Skips silently if dependencies are missing
-
-### 5. Transfer Module
-
-**Purpose:** Route issues to correct repositories
-
-**RuleMatcher Evaluation:**
-```
-For each rule (sorted by priority descending):
-  Check all conditions:
-    - labels (AND logic - all must match)
-    - labels_any (OR logic - any must match)
-    - title_contains (any phrase in title)
-    - body_contains (any phrase in body)
-    - author (exact author match)
-  If all conditions match:
-    Return target repository
-    Mark in blocked_targets to prevent loops
-```
-
-**Two Routing Strategies:**
-- **Rule-Based**: Pattern matching on metadata and text
-- **LLM-Based**: Semantic analysis with repository descriptions
-
-### 6. State Management
-
-**Purpose:** Persistent state across invocations
-
-**Supports:**
-- Pending actions that require scheduling
-- Transfer loops prevention
-- Cross-invocation state (future)
-
-## Data Flow
-
-### Issue Processing Flow
-
-```
-1. Input: GitHub Issue Event (webhook/CLI)
-   │
-   ├─ Load Configuration
-   │  ├─ Merge with extends chain
-   │  └─ Expand environment variables
-   │
-   ├─ Initialize Dependencies
-   │  ├─ Gemini Embedder
-   │  ├─ Gemini LLM Client
-   │  ├─ Qdrant Vector Store
-   │  └─ GitHub Client
-   │
-   ├─ Run Pipeline
-   │  ├─ Gatekeeper: Is repo enabled?
-   │  ├─ Command Handler: Any bot commands?
-   │  ├─ VectorDB Prep: Collection exists?
-   │  ├─ Similarity Search: Find related issues
-   │  ├─ Transfer Check: Rule matches?
-   │  ├─ LLM Router: Where should it go?
-   │  ├─ Duplicate Detector: Is it a duplicate?
-   │  ├─ Quality Checker: How good is the description?
-   │  ├─ Triage: What labels apply?
-   │  ├─ Response Builder: Build comment text
-   │  ├─ Action Executor: Post, label, transfer
-   │  ├─ Indexer: Add to vector database
-   │  └─ Pending Actions: Schedule delayed ops
-   │
-   └─ Output: Results & Actions on GitHub
-```
-
-### Bulk Indexing Flow
-
-```
-1. Get list of issues from GitHub (with pagination)
-   │
-2. Spawn worker pool (default 5 workers)
-   │
-3. For each issue:
-   ├─ Fetch all comments
-   ├─ Combine: title + body + comments
-   ├─ Chunk text (RecursiveCharacterSplitter)
-   ├─ Generate embeddings for each chunk
-   ├─ Create points with metadata
-   └─ Upsert to Qdrant
-   │
-4. Complete when all issues processed
-```
-
-## Modular Design Benefits
-
-### Flexibility
-- Choose which steps to run
-- Create custom workflows
-- Add new steps without modifying core
-- Skip steps based on configuration
-
-### Scalability
-- Parallel worker support for bulk operations
-- Efficient embeddings with batching
-- Vector database for semantic search at scale
-- Distributed deployments via Docker
-
-### Maintainability
-- Each step has single responsibility
-- Easy to test individual components
-- Clear contracts between steps
-- Minimal coupling
-
-### Extensibility
-- New steps can be added to registry
-- Custom workflows via configuration
-- External service integration points
-- Plugin-style architecture
-
-## Deployment Architecture
-
-### GitHub Action Deployment
-
-```
-Workflow Trigger (issue opened/edited)
-        ↓
-GitHub Action Container
-  ├─ Mount event.json
-  ├─ Load configuration
-  ├─ Run pipeline
-  └─ Output results
-        ↓
-Actions taken on GitHub
-  ├─ Comments posted
-  ├─ Issues transferred
-  └─ Labels applied
-```
-
-### Docker Deployment
-
-```
-Docker Container
-  ├─ Base: Alpine Linux
-  ├─ Binary: simili executable
-  ├─ Volumes: Config, event data
-  └─ Environment: API keys
-        ↓
-Outputs
-  ├─ Console logs
-  ├─ GitHub API calls
-  └─ Vector DB updates
-```
-
-### CLI Deployment
-
-```
-Local/Server Execution
-  ├─ Config file: simili.yaml
-  ├─ Event file: event.json (or GitHub fetch)
-  └─ Environment: API keys
-        ↓
-Results
-  ├─ Console output
-  ├─ Optional: GitHub API actions
-  └─ Optional: Vector DB indexing
-```
-
-## Error Handling Strategy
-
-**Three-Tier Approach:**
-
-1. **Critical Errors** (Config, Auth)
-   - Exit immediately
-   - Log detailed error
-
-2. **Step Errors** (Analysis, API)
-   - Continue pipeline
-   - Accumulate in Result.Errors
-   - Skip that step's output
-
-3. **Graceful Skips**
-   - Return `ErrSkipPipeline` if dependencies missing
-   - Continue execution cleanly
-   - Output what was possible
-
-**Result Accumulation:**
-Each step adds to the same `Result` object, creating comprehensive output even if some steps fail.
-
-## Performance Characteristics
-
-| Operation | Typical Time | Notes |
-|-----------|--------------|-------|
-| Load config | <100ms | Simple YAML parsing |
-| Similarity search | 100-500ms | Depends on Qdrant latency |
-| Generate embedding | 500ms-1s | Text-embedding-004 API |
-| LLM analysis | 2-5s | Gemini API latency |
-| GitHub API calls | 100-500ms | Per call, parallelizable |
-| Full pipeline | 10-20s | All steps, typical case |
-| Bulk index (1000 issues) | 2-5 min | With 5 workers |
-
-Bottlenecks are typically external API calls (Gemini, GitHub, Qdrant).
-
-## Security Architecture
-
-**Credential Management:**
-- Environment variables only
-- No hardcoded secrets
-- Support for GitHub Actions secrets
-- OAuth2 for GitHub authentication
-
-**Access Control:**
-- GitHub token for primary repo operations
-- Optional transfer_token for elevated permissions
-- Qdrant API key authentication
-- Gemini API key authentication
-
-**Data Handling:**
-- Issues stored in Qdrant vector database
-- Metadata included in vector payloads
-- No data storage beyond vector DB
-- Respects issue privacy (can't transfer to inaccessible repos)
+<CardGroup cols={2}>
+  <Card title="Pipeline Reference" href="/reference/pipeline/steps" icon="diagram-project" />
+  <Card title="API Integrations" href="/reference/integrations/github" icon="plug" />
+</CardGroup>

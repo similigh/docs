@@ -12,19 +12,14 @@
   "navigation": {
     "tabs": [
       {
-        "tab": "Getting Started",
+        "tab": "Documentation",
         "groups": [
           {
-            "group": "Introduction",
+            "group": "Getting Started",
             "pages": [
               "index",
               "overview/features",
-              "overview/architecture"
-            ]
-          },
-          {
-            "group": "Choose Your Path",
-            "pages": [
+              "overview/architecture",
               "getting-started/choose-your-setup",
               "getting-started/patterns-overview"
             ]
@@ -34,42 +29,23 @@
             "pages": [
               "getting-started/single-repo-setup",
               "getting-started/centralized-multi-repo-setup",
-              "getting-started/distributed-multi-repo-setup"
+              "getting-started/distributed-multi-repo-setup",
+              "setup/installation"
             ]
-          }
-        ]
-      },
-      {
-        "tab": "Configuration",
-        "groups": [
+          },
           {
-            "group": "Core Setup",
+            "group": "Configuration",
             "pages": [
               "configuration/overview",
               "configuration/qdrant",
-              "configuration/gemini"
-            ]
-          },
-          {
-            "group": "Advanced",
-            "pages": [
+              "configuration/gemini",
               "configuration/repositories",
               "configuration/transfer-rules",
-              "configuration/modular-config"
-            ]
-          },
-          {
-            "group": "Reference",
-            "pages": [
+              "configuration/modular-config",
               "configuration/permissions",
               "setup/github-action-reference"
             ]
-          }
-        ]
-      },
-      {
-        "tab": "Guides",
-        "groups": [
+          },
           {
             "group": "Core Features",
             "pages": [
@@ -89,17 +65,19 @@
               "guides/deployment",
               "guides/troubleshooting"
             ]
-          }
-        ]
-      },
-      {
-        "tab": "Reference",
-        "groups": [
+          },
           {
-            "group": "CLI Reference",
+            "group": "CLI & Technical Reference",
             "pages": [
               "reference/cli/process-command",
-              "reference/cli/index-command"
+              "reference/cli/index-command",
+              "reference/config-schema",
+              "reference/environment-variables",
+              "reference/pipeline/steps",
+              "reference/pipeline/context",
+              "reference/integrations/gemini",
+              "reference/integrations/qdrant",
+              "reference/integrations/github"
             ]
           }
         ]
@@ -148,15 +126,15 @@
   },
   "contextual": {
     "options": [
-     "copy",
-     "view",
-     "chatgpt",
-     "claude",
-     "perplexity",
-     "mcp",
-     "cursor",
-     "vscode"
-   ]
+      "copy",
+      "view",
+      "chatgpt",
+      "claude",
+      "perplexity",
+      "mcp",
+      "cursor",
+      "vscode"
+    ]
   },
   "footer": {
     "socials": {
