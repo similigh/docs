@@ -1,0 +1,174 @@
+---
+title: Deployment
+description: Deploy Simili Bot at scale
+---
+
+# Deployment Guide
+
+Deploy Simili Bot to production with high reliability and performance.
+
+## Deployment Options
+
+<CardGroup cols={2}>
+  <Card title="GitHub Action" href="/setup/github-action">
+    Event-driven - runs on issue events
+  </Card>
+  <Card title="Docker" href="/setup/installation#docker">
+    Container - self-hosted
+  </Card>
+  <Card title="Kubernetes" href="#kubernetes">
+    Orchestrated - enterprise scale
+  </Card>
+</CardGroup>
+
+## GitHub Action (Recommended)
+
+Simplest deployment - runs automatically on issue events.
+
+**Pros:**
+- Zero infrastructure
+- Automatic scaling
+- GitHub-native
+- Easy to debug
+
+**Cons:**
+- Limited to GitHub
+- Per-run time limits
+
+See [GitHub Action Setup](/setup/github-action) for details.
+
+## Self-Hosted Docker
+
+Full control over deployment.
+
+**Pros:**
+- Control environment
+- Batch processing
+- Custom workflows
+- Integration with other tools
+
+**Cons:**
+- Infrastructure management
+- Scaling complexity
+- Security responsibility
+
+## Kubernetes Deployment (Enterprise)
+
+For large-scale deployments:
+
+**Example:**
+```yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: simili-bot
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: simili-bot
+  template:
+    metadata:
+      labels:
+        app: simili-bot
+    spec:
+      containers:
+      - name: simili-bot
+        image: similigh/simili-bot:v0.1.0
+        env:
+        - name: QDRANT_URL
+          valueFrom:
+            secretKeyRef:
+              name: simili-secrets
+              key: qdrant-url
+        - name: QDRANT_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: simili-secrets
+              key: qdrant-api-key
+        - name: GEMINI_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: simili-secrets
+              key: gemini-api-key
+        - name: GITHUB_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: simili-secrets
+              key: github-token
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "100m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+        volumeMounts:
+        - name: config
+          mountPath: /etc/simili
+      volumes:
+      - name: config
+        configMap:
+          name: simili-config
+```
+
+## Production Checklist
+
+- [ ] Secrets configured securely
+- [ ] Error logging enabled
+- [ ] Rate limiting configured
+- [ ] Backup plan for vector DB
+- [ ] Monitoring and alerts set up
+- [ ] Load testing completed
+- [ ] Disaster recovery plan
+- [ ] Team trained on operations
+
+## Monitoring
+
+Monitor these metrics:
+- API response times
+- Error rates
+- Vector DB size
+- GitHub API quota usage
+- Gemini API costs
+
+## Backup & Recovery
+
+### Qdrant Backup
+
+Regularly backup your vector database:
+
+**Qdrant Cloud:**
+- Automatic backups included
+- Check backup schedule in dashboard
+
+**Self-Hosted:**
+```bash
+docker run --rm -v qdrant_storage:/qdrant/storage \
+  -v backups:/backup \
+  qdrant/qdrant \
+  backup create /backup
+```
+
+## Cost Optimization
+
+- Use dev cluster for testing
+- Monitor API usage
+- Archive old issues
+- Optimize batch sizes
+
+## Security
+
+- Use GitHub Actions secrets
+- Rotate API keys regularly
+- Limit GitHub token permissions
+- Use VPC for self-hosted
+- Enable TLS everywhere
+
+## Next Steps
+
+<CardGroup cols={1}>
+  <Card title="Troubleshooting" href="/guides/troubleshooting">
+    Resolve common issues
+  </Card>
+</CardGroup>

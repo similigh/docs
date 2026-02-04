@@ -1,0 +1,367 @@
+---
+title: Configuration Overview
+description: Configure Simili Bot v0.1.0
+---
+
+# Configuration Overview
+
+Simili Bot is configured using a YAML file. Learn how to set up your configuration for different use cases.
+
+## Configuration File Location
+
+By default, Simili Bot looks for configuration in these locations:
+
+1. **Explicit path:** Specified via CLI or workflow
+   ```bash
+   simili process --config /path/to/simili.yaml
+   ```
+
+2. **GitHub Actions:** Path specified in workflow
+   ```yaml
+   - uses: similigh/simili-bot@v0.1.0
+     with:
+      config_path: ".github/simili.yaml"
+   ```
+
+3. **Current directory:** `simili.yaml` in working directory
+
+## Configuration Structure
+
+A complete configuration file has these main sections:
+
+```yaml
+# Vector database connection
+qdrant:
+  url: "https://your-cluster.qdrant.io:6333"
+  api_key: "${QDRANT_API_KEY}"
+  collection: "issues"
+
+# AI model settings
+embedding:
+  provider: "gemini"
+  api_key: "${GEMINI_API_KEY}"
+  model: "text-embedding-004"
+  dimensions: 768
+
+# Default behavior
+defaults:
+  similarity_threshold: 0.70
+  max_similar_to_show: 5
+  cross_repo_search: false
+
+# Repository configuration
+repositories:
+  - org: "my-org"
+    repo: "my-repo"
+    enabled: true
+    description: "Repository description"
+
+# Issue routing rules
+transfer:
+  enabled: false
+  llm_routing_enabled: false
+  rules: []
+```
+
+## Section Breakdown
+
+### Qdrant Configuration
+
+Configure your vector database connection:
+
+```yaml
+qdrant:
+  url: "https://your-cluster.qdrant.io:6333"
+  api_key: "${QDRANT_API_KEY}"
+  collection: "issues"
+  tls: true
+  timeout: 30
+```
+
+| Property | Type | Description | Required |
+|----------|------|-------------|----------|
+| `url` | string | Qdrant instance URL with port | Yes |
+| `api_key` | string | API key (use env vars) | Yes |
+| `collection` | string | Collection name for issues | Yes |
+| `tls` | boolean | Use TLS for connection | No (default: true) |
+| `timeout` | number | Request timeout in seconds | No (default: 30) |
+
+### Embedding Configuration
+
+Configure AI embeddings:
+
+```yaml
+embedding:
+  provider: "gemini"
+  api_key: "${GEMINI_API_KEY}"
+  model: "text-embedding-004"
+  dimensions: 768
+```
+
+| Property | Type | Description | Required |
+|----------|------|-------------|----------|
+| `provider` | string | Only "gemini" supported | Yes |
+| `api_key` | string | Gemini API key (use env vars) | Yes |
+| `model` | string | Model name | No (default: text-embedding-004) |
+| `dimensions` | number | Vector dimensions | No (default: 768) |
+
+### Defaults Configuration
+
+Set default behavior for issue processing:
+
+```yaml
+defaults:
+  similarity_threshold: 0.70
+  max_similar_to_show: 5
+  cross_repo_search: false
+```
+
+| Property | Type | Description | Default |
+|----------|------|-------------|---------|
+| `similarity_threshold` | float (0-1) | Min score to show similar issue | 0.70 |
+| `max_similar_to_show` | number | Max related issues to display | 5 |
+| `cross_repo_search` | boolean | Search across all repos | false |
+
+### Repositories Configuration
+
+List repositories to manage:
+
+```yaml
+repositories:
+  - org: "my-org"
+    repo: "backend"
+    enabled: true
+    description: "Backend services and APIs"
+    labels: ["backend", "api"]
+
+  - org: "my-org"
+    repo: "frontend"
+    enabled: false  # Disable temporarily
+    description: "Web UI and client applications"
+```
+
+| Property | Type | Description | Required |
+|----------|------|-------------|----------|
+| `org` | string | GitHub organization or username | Yes |
+| `repo` | string | Repository name | Yes |
+| `enabled` | boolean | Enable Simili Bot for this repo | No (default: true) |
+| `description` | string | Description for routing decisions | No |
+| `labels` | array | Associated labels | No |
+
+### Transfer Configuration
+
+Configure issue routing:
+
+```yaml
+transfer:
+  enabled: true
+  llm_routing_enabled: true
+  rules:
+    - name: "Route to docs"
+      priority: 10
+      target: "org/docs"
+      title_contains: ["documentation", "docs"]
+```
+
+Details in [Transfer Rules](/configuration/transfer-rules).
+
+## Environment Variables
+
+Use environment variables for sensitive data:
+
+```yaml
+qdrant:
+  api_key: "${QDRANT_API_KEY}"
+
+embedding:
+  api_key: "${GEMINI_API_KEY}"
+```
+
+Set variables before running:
+
+```bash
+export QDRANT_API_KEY="your-key"
+export GEMINI_API_KEY="your-key"
+simili process --config simili.yaml
+```
+
+Or in GitHub Actions:
+
+```yaml
+env:
+  QDRANT_API_KEY: ${{ secrets.QDRANT_API_KEY }}
+  GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+```
+
+## Configuration Inheritance
+
+Extend configuration from a parent file:
+
+```yaml
+extends: "https://raw.githubusercontent.com/my-org/configs/main/base.yaml"
+
+# Override specific settings
+repositories:
+  - org: "my-org"
+    repo: "my-service"
+    enabled: true
+```
+
+Benefits:
+- Organization-wide defaults
+- Consistent policies across repositories
+- Easy updates to shared config
+- Per-repository customization
+
+Parent configuration is fetched via HTTPS and merged.
+
+## Common Configurations
+
+### Single Repository
+
+Manage one repository only:
+
+```yaml
+qdrant:
+  url: "https://your-cluster.qdrant.io:6333"
+  api_key: "${QDRANT_API_KEY}"
+  collection: "issues"
+
+embedding:
+  provider: "gemini"
+  api_key: "${GEMINI_API_KEY}"
+
+defaults:
+  similarity_threshold: 0.70
+  max_similar_to_show: 5
+  cross_repo_search: false
+
+repositories:
+  - org: "my-username"
+    repo: "my-project"
+    enabled: true
+    description: "My project"
+```
+
+### Organization with Multiple Repos
+
+```yaml
+extends: "https://raw.githubusercontent.com/my-org/policies/main/base.yaml"
+
+repositories:
+  - org: "my-org"
+    repo: "backend"
+    enabled: true
+    description: "Backend services"
+
+  - org: "my-org"
+    repo: "frontend"
+    enabled: true
+    description: "Web UI"
+
+  - org: "my-org"
+    repo: "infrastructure"
+    enabled: true
+    description: "DevOps and infrastructure"
+```
+
+### Development vs Production
+
+**Development config** (.github/simili-dev.yaml):
+```yaml
+qdrant:
+  url: "https://dev-cluster.qdrant.io:6333"
+  api_key: "${QDRANT_DEV_KEY}"
+
+defaults:
+  similarity_threshold: 0.80
+  max_similar_to_show: 3
+```
+
+**Production config** (.github/simili-prod.yaml):
+```yaml
+qdrant:
+  url: "https://prod-cluster.qdrant.io:6333"
+  api_key: "${QDRANT_PROD_KEY}"
+
+defaults:
+  similarity_threshold: 0.70
+  max_similar_to_show: 5
+```
+
+## Validation
+
+Simili Bot validates configuration on startup. Common errors:
+
+**Missing required fields:**
+```
+Error: qdrant.url is required
+Error: embedding.api_key is required
+```
+
+**Invalid YAML syntax:**
+```
+Error: Failed to parse configuration: yaml: line 5: mapping values are not allowed in this context
+```
+
+**Invalid threshold value:**
+```
+Error: similarity_threshold must be between 0.0 and 1.0
+```
+
+## Configuration Updates
+
+### To Update Configuration
+
+1. Edit `simili.yaml`
+2. Commit and push to repository
+3. Next issue processed uses new configuration
+4. No restart required (GitHub Action runs with latest config)
+
+### Safe Testing
+
+Test changes before deploying:
+
+```bash
+# Test with dry-run mode
+simili process --issue test.json --config simili.yaml --dry-run
+```
+
+Or in workflow:
+
+```yaml
+- uses: similigh/simili-bot@v0.1.0
+  with:
+    command: "process"
+    config_path: ".github/simili.yaml"
+    dry_run: true
+```
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card
+    title="Qdrant Setup"
+    href="/configuration/qdrant"
+  >
+    Configure vector database
+  </Card>
+  <Card
+    title="Gemini Setup"
+    href="/configuration/gemini"
+  >
+    Configure AI engine
+  </Card>
+  <Card
+    title="Repositories"
+    href="/configuration/repositories"
+  >
+    Configure multiple repos
+  </Card>
+  <Card
+    title="Transfer Rules"
+    href="/configuration/transfer-rules"
+  >
+    Setup issue routing
+  </Card>
+</CardGroup>

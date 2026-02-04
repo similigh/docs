@@ -1,0 +1,87 @@
+---
+title: Configuration Schema
+description: Complete YAML schema reference
+---
+
+# Configuration Schema
+
+Complete reference for all configuration options in Simili Bot v0.1.0.
+
+## Root Level
+
+```yaml
+extends: string                    # Optional: parent config URL
+qdrant: QdrantConfig              # Required: vector database
+embedding: EmbeddingConfig        # Required: AI model
+defaults: DefaultsConfig          # Optional: default behavior
+repositories: [RepositoryConfig]  # Required: at least one repo
+transfer: TransferConfig          # Optional: issue routing
+```
+
+## QdrantConfig
+
+```yaml
+qdrant:
+  url: string                      # Required: https://cluster.qdrant.io:6333
+  api_key: string                  # Required: API key
+  collection: string               # Required: collection name
+  tls: boolean                     # Optional (default: true)
+  timeout: number                  # Optional (default: 30)
+  max_retries: number              # Optional (default: 3)
+```
+
+## EmbeddingConfig
+
+```yaml
+embedding:
+  provider: string                 # Required: "gemini"
+  api_key: string                  # Required: API key
+  model: string                    # Optional (default: "text-embedding-004")
+  dimensions: number               # Optional (default: 768)
+  batch_size: number              # Optional (default: 100)
+```
+
+## DefaultsConfig
+
+```yaml
+defaults:
+  similarity_threshold: number      # 0.0-1.0 (default: 0.70)
+  max_similar_to_show: number      # 1-20 (default: 5)
+  cross_repo_search: boolean       # (default: false)
+```
+
+## RepositoryConfig
+
+```yaml
+repositories:
+  - org: string                    # Required: org/username
+    repo: string                   # Required: repo name
+    enabled: boolean               # Optional (default: true)
+    description: string            # Optional: for LLM routing
+    labels: [string]               # Optional: associated labels
+```
+
+## TransferConfig
+
+```yaml
+transfer:
+  enabled: boolean                 # Enable/disable (default: false)
+  llm_routing_enabled: boolean     # Use AI routing (default: false)
+  rules: [TransferRule]            # Array of routing rules
+```
+
+## TransferRule
+
+```yaml
+- name: string                     # Rule name (required)
+  priority: number                 # Higher = evaluated first (required)
+  target: string                   # "org/repo" (required)
+  enabled: boolean                 # (default: true)
+  labels: [string]                 # AND condition
+  labels_any: [string]             # OR condition
+  title_contains: [string]         # Title matching
+  body_contains: [string]          # Body matching
+  author: string                   # Author username
+```
+
+See [Configuration Reference](/configuration/overview) for details.

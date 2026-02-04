@@ -1,0 +1,378 @@
+---
+title: Troubleshooting
+description: Resolve common issues with Simili Bot
+---
+
+# Troubleshooting Guide
+
+Common issues and how to fix them.
+
+## Installation Issues
+
+### "Configuration not found"
+
+**Error:**
+```
+Error: Failed to load configuration: file not found
+```
+
+**Solutions:**
+- Verify file path is correct
+- Check file exists in repository
+- For GitHub Actions, verify path relative to repository root
+- Check YAML syntax: `cat .github/simili.yaml`
+
+### "API key is invalid"
+
+**Error:**
+```
+Error: Invalid API key
+```
+
+**Solutions:**
+1. Verify key from source (Qdrant Cloud, Google AI Studio)
+2. Copy without extra spaces or newlines
+3. For GitHub secrets, add to repository settings
+4. Regenerate key if recently changed
+5. Verify API is enabled in cloud console
+
+### "Cannot connect to Qdrant"
+
+**Error:**
+```
+Error: Failed to connect to Qdrant: connection refused
+```
+
+**Solutions:**
+- Check Qdrant is running: `curl https://your-cluster.qdrant.io:6333`
+- Verify URL format: includes `:6333` port
+- Check API key is correct
+- Verify firewall allows outbound HTTPS
+- Try connecting from local machine first
+
+## Runtime Issues
+
+### No comments posted on issues
+
+**Symptoms:**
+- Issue processed but no comment appears
+- Check GitHub Actions shows success
+
+**Causes:**
+- GitHub token missing required permissions
+- Repository is private and token lacks access
+- Dry-run mode enabled
+
+**Solutions:**
+```yaml
+permissions:
+  issues: write  # Required for posting comments
+  contents: read
+```
+
+Verify token has `issues: write` scope.
+
+### Similar issues not found
+
+**Symptoms:**
+- No similar issues shown even when they exist
+
+**Causes:**
+- Threshold too high (needs to be raised to find issues)
+- Issues not indexed yet
+- Different terminology
+- Issue is too unique
+
+**Solutions:**
+1. Lower threshold in configuration:
+   ```yaml
+   defaults:
+     similarity_threshold: 0.60  # More lenient
+   ```
+
+2. Bulk index all issues:
+   ```bash
+   simili index --repo owner/repo --since 2020-01-01
+   ```
+
+3. Improve issue descriptions
+
+### Duplicate detection not working
+
+**Symptoms:**
+- Duplicates not marked even when obvious
+
+**Causes:**
+- Gemini API key issues
+- LLM errors (usually logged)
+- Similarity threshold misses them
+
+**Solutions:**
+1. Check logs for LLM errors
+2. Verify Gemini API key works
+3. Try with `--dry-run` to see analysis
+4. Lower similarity threshold first
+
+## GitHub Action Issues
+
+### Workflow doesn't trigger
+
+**Symptoms:**
+- No workflow runs when issue created
+
+**Causes:**
+- Trigger conditions not met
+- Workflow file not on main branch
+- Actions disabled
+
+**Solutions:**
+1. Check `on:` triggers:
+   ```yaml
+   on:
+     issues:
+       types: [opened, edited]
+   ```
+
+2. Push workflow to main branch
+3. Enable Actions in repository settings
+
+### Action times out
+
+**Symptoms:**
+- Workflow runs >30 minutes
+
+**Causes:**
+- Large repository (many similar issues)
+- Slow API responses
+- Network issues
+
+**Solutions:**
+- Increase Qdrant timeout
+- Reduce `max_similar_to_show`
+- Split processing across multiple workflows
+
+### "Permission denied" error
+
+**Symptoms:**
+- Action can't post comments
+
+**Causes:**
+- Missing `issues: write` permission
+- Token is restricted
+
+**Solutions:**
+```yaml
+permissions:
+  issues: write
+  contents: read
+```
+
+## API Rate Limiting
+
+### Gemini rate limit
+
+**Error:**
+```
+Error 429: Rate limit exceeded
+```
+
+**Solutions:**
+- Free tier: 15 LLM requests/min, 50 embedding requests/min
+- Add delays between requests
+- Use smaller batch sizes
+- Upgrade to paid plan
+
+### GitHub API rate limit
+
+**Error:**
+```
+Error 403: API rate limit exceeded
+```
+
+**Solutions:**
+- Use personal access token instead of GITHUB_TOKEN
+- PAT has higher limits
+- Batch operations when possible
+- Check rate limit status
+
+### Qdrant timeout
+
+**Error:**
+```
+Error: i/o timeout
+```
+
+**Solutions:**
+1. Increase timeout:
+   ```yaml
+   qdrant:
+     timeout: 60  # Seconds
+   ```
+
+2. Check Qdrant health
+3. For cloud: verify region
+4. Reduce query complexity
+
+## Vector Database Issues
+
+### "Collection not found"
+
+**Error:**
+```
+Error: Collection "issues" not found
+```
+
+**Solutions:**
+- Simili Bot creates automatically - run again
+- Verify collection name in config
+- Check Qdrant is running
+- Verify API permissions
+
+### "Out of storage"
+
+**Error:**
+```
+Error: Storage quota exceeded
+```
+
+**Solutions:**
+- Qdrant Cloud: Upgrade plan
+- Self-hosted: Expand storage
+- Delete old closed issues
+- Implement retention policy
+
+### Poor similarity results
+
+**Symptoms:**
+- Wrong issues returned as similar
+- Missing obvious matches
+
+**Causes:**
+- Low quality issue descriptions
+- Insufficient historical data
+- Poor threshold setting
+
+**Solutions:**
+1. Index more historical issues
+2. Improve issue descriptions
+3. Adjust threshold
+4. Check vector quality (ensure Gemini API works)
+
+## Configuration Issues
+
+### YAML parsing error
+
+**Error:**
+```
+Error: Failed to parse configuration: yaml parsing error
+```
+
+**Solutions:**
+1. Check indentation (use spaces, not tabs)
+2. Validate YAML: use online validator
+3. Check quotes and special characters
+4. Look at line number in error
+
+### Invalid configuration values
+
+**Error:**
+```
+Error: similarity_threshold must be between 0.0 and 1.0
+```
+
+**Solutions:**
+- Check value types (number, boolean, string)
+- Review configuration schema
+- See [Configuration Overview](/configuration/overview)
+
+### Environment variable not expanding
+
+**Symptoms:**
+- Literal `${VARIABLE_NAME}` in output instead of value
+
+**Causes:**
+- Variable not set in environment
+- Typo in variable name
+- Not running in correct shell
+
+**Solutions:**
+```bash
+export QDRANT_API_KEY="your-key"
+export GEMINI_API_KEY="your-key"
+simili process --config simili.yaml --issue test.json
+```
+
+## Testing Issues
+
+### Dry-run shows different behavior
+
+**Symptom:**
+- Dry-run works but real run fails
+
+**Cause:**
+- Usually permissions or API keys
+
+**Solutions:**
+- Check actual error in logs
+- Verify GitHub token has write permissions
+- Verify all secrets are correct
+
+## Debugging
+
+### Enable verbose logging
+
+Check logs at:
+1. **GitHub Action**: Actions tab → workflow → step logs
+2. **Docker**: `docker logs <container>`
+3. **CLI**: Console output
+
+### Minimal reproduction
+
+Test with single issue:
+```bash
+simili process --issue test.json \
+  --config simili.yaml \
+  --dry-run
+```
+
+### Check external services
+
+Test connectivity:
+```bash
+# Test Qdrant
+curl https://your-cluster.qdrant.io:6333/health
+
+# Test GitHub
+curl -H "Authorization: token $GITHUB_TOKEN" \
+  https://api.github.com/user
+
+# Test Gemini (via Simili Bot)
+simili process --dry-run --issue test.json --config simili.yaml
+```
+
+## Getting Help
+
+1. Check logs for exact error message
+2. Review configuration for common mistakes
+3. Try with `--dry-run` flag
+4. Open issue on [GitHub](https://github.com/similigh/simili-bot/issues)
+5. Include:
+   - Error message
+   - Configuration (with secrets redacted)
+   - Relevant logs
+   - Steps to reproduce
+
+## Common Success Signs
+
+✅ **Working Properly:**
+- Comments posted to issues
+- Appropriate labels suggested
+- Similar issues found
+- No error messages
+- GitHub Actions shows success
+
+✅ **Logs Show:**
+- "Successfully processed issue"
+- "Found 3 similar issues"
+- "Posted comment to GitHub"
+- No `Error:` messages

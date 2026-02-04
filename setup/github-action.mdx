@@ -1,0 +1,397 @@
+---
+title: GitHub Action Setup
+description: Complete guide for GitHub Action integration
+---
+
+# GitHub Action Setup
+
+Deploy Simili Bot as a GitHub Action to automatically process issues.
+
+## Overview
+
+The GitHub Action runs Simili Bot in response to issue events. It:
+- Processes issues when created or updated
+- Handles issue comments with bot commands
+- Runs in isolated container with necessary permissions
+- Posts results back to GitHub
+
+## Prerequisites
+
+- GitHub repository with Actions enabled
+- Qdrant instance (free tier available)
+- Gemini API key
+- Repository secrets configured (see [Installation](/setup/installation))
+
+## Workflow Configuration
+
+### Basic Setup
+
+Create `.github/workflows/simili-bot.yml`:
+
+```yaml
+name: Simili Bot
+
+on:
+  issues:
+    types: [opened, edited]
+
+jobs:
+  simili:
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+      contents: read
+    steps:
+      - uses: similigh/simili-bot@v0.1.0
+        with:
+          command: "process"
+          config_path: ".github/simili.yaml"
+          dry_run: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          QDRANT_URL: ${{ secrets.QDRANT_URL }}
+          QDRANT_API_KEY: ${{ secrets.QDRANT_API_KEY }}
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+```
+
+### Inputs
+
+| Input | Description | Default | Required |
+|-------|-------------|---------|----------|
+| `command` | `process` or `index` | `process` | Yes |
+| `config_path` | Path to configuration file | `.github/simili.yaml` | No |
+| `dry_run` | Run without posting to GitHub | `false` | No |
+| `workflow` | Preset workflow name | `issue-triage` | No |
+
+### Triggers
+
+Common GitHub issue event triggers:
+
+```yaml
+on:
+  issues:
+    types:
+      - opened      # New issue created
+      - edited      # Issue edited
+      - reopened    # Issue reopened
+  issue_comment:
+    types:
+      - created     # Comment added
+      - edited      # Comment edited
+```
+
+## Advanced Configurations
+
+### Include Multiple Triggers
+
+Process on both issues and pull request reviews:
+
+```yaml
+on:
+  issues:
+    types: [opened, edited]
+  pull_request:
+    types: [opened, edited]
+```
+
+### Test with Dry-Run Mode
+
+Try Simili Bot without posting to GitHub:
+
+```yaml
+name: Simili Bot - Dry Run
+
+on:
+  pull_request:
+    paths:
+      - '.github/simili.yaml'
+
+jobs:
+  simili-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: similigh/simili-bot@v0.1.0
+        with:
+          command: "process"
+          config_path: ".github/simili.yaml"
+          dry_run: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          QDRANT_URL: ${{ secrets.QDRANT_URL }}
+          QDRANT_API_KEY: ${{ secrets.QDRANT_API_KEY }}
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+```
+
+### Bulk Indexing Workflow
+
+Periodically index all issues:
+
+```yaml
+name: Simili Bot - Index Issues
+
+on:
+  schedule:
+    - cron: '0 2 * * 0'  # Weekly at 2 AM UTC
+  workflow_dispatch:  # Manual trigger
+
+jobs:
+  index:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: similigh/simili-bot@v0.1.0
+        with:
+          command: "index"
+          config_path: ".github/simili.yaml"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          QDRANT_URL: ${{ secrets.QDRANT_URL }}
+          QDRANT_API_KEY: ${{ secrets.QDRANT_API_KEY }}
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+```
+
+### Branch-Specific Workflows
+
+Run different configurations per branch:
+
+```yaml
+on:
+  issues:
+    types: [opened]
+
+jobs:
+  simili:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: similigh/simili-bot@v0.1.0
+        with:
+          command: "process"
+          config_path: ".github/simili.yaml"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          QDRANT_URL: ${{ secrets.QDRANT_URL }}
+          QDRANT_API_KEY: ${{ secrets.QDRANT_API_KEY }}
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+```
+
+## Permissions
+
+Ensure your workflow has proper permissions:
+
+```yaml
+permissions:
+  issues: write          # Post comments, apply labels
+  contents: read        # Read configuration files
+  repository-projects: write  # Update project boards (optional)
+```
+
+## Secrets Management
+
+### Adding Secrets
+
+1. Go to **Settings** → **Secrets and variables** → **Actions**
+2. Click **New repository secret**
+3. Add secrets from [Installation](/setup/installation#step-2-add-github-secrets-1-min)
+
+### Using Organization Secrets
+
+For multi-repository setup, use organization secrets:
+
+1. Go to **Organization** → **Settings** → **Secrets and variables** → **Actions**
+2. Create organization-level secrets
+3. Grant repository access
+4. Reference in workflows: `${{ secrets.ORG_SECRET_NAME }}`
+
+### Rotating Secrets
+
+To rotate API keys:
+1. Generate new key in external service
+2. Update GitHub secret value
+3. Delete old key from external service
+4. Next workflow run uses new credentials
+
+## Monitoring & Logging
+
+### View Workflow Runs
+
+1. Go to **Actions** tab in your repository
+2. Click **Simili Bot** workflow
+3. View recent runs
+
+### Check Logs
+
+Click on a workflow run to see:
+- Step-by-step execution
+- Full output logs
+- Any errors or warnings
+
+### Common Log Patterns
+
+**Success:**
+```
+Successfully processed issue #42
+Similarity search found 3 related issues
+Duplicate detected with 87% confidence
+Posted comment with analysis
+```
+
+**Dry-Run (no GitHub changes):**
+```
+[DRY RUN] Would post comment to issue #42
+[DRY RUN] Would apply labels: bug, high-priority
+[DRY RUN] Would transfer to org/backend
+```
+
+**Error:**
+```
+Error: Failed to connect to Qdrant
+Error: Invalid API key for Gemini
+Error: Repository not configured in simili.yaml
+```
+
+## Multi-Repository Setup
+
+### Same Configuration Across Repos
+
+Use organization secrets and shared configuration:
+
+```yaml
+# In multiple repositories
+uses: similigh/simili-bot@v0.1.0
+with:
+  command: "process"
+  config_path: ".github/simili.yaml"
+env:
+  # Use org-level secrets
+  QDRANT_URL: ${{ secrets.ORG_QDRANT_URL }}
+  QDRANT_API_KEY: ${{ secrets.ORG_QDRANT_API_KEY }}
+  GEMINI_API_KEY: ${{ secrets.ORG_GEMINI_API_KEY }}
+  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+```
+
+### Different Configuration Per Repo
+
+Each repository can have unique `simili.yaml`:
+
+```yaml
+# Repository-specific config
+repositories:
+  - org: "my-org"
+    repo: "frontend"
+    enabled: true
+    description: "Web UI and client"
+```
+
+## Performance Optimization
+
+### Reduce Workflow Duration
+
+**Dry-run for testing:**
+```yaml
+- uses: similigh/simili-bot@v0.1.0
+  with:
+    dry_run: true
+```
+
+**Skip on certain labels:**
+```yaml
+on:
+  issues:
+    types: [opened]
+
+jobs:
+  check-skip:
+    runs-on: ubuntu-latest
+    outputs:
+      skip: ${{ steps.check.outputs.skip }}
+    steps:
+      - id: check
+        run: |
+          if [[ "${{ github.event.issue.labels[*] }}" == *"skip-bot"* ]]; then
+            echo "skip=true" >> $GITHUB_OUTPUT
+          fi
+
+  simili:
+    needs: check-skip
+    if: needs.check-skip.outputs.skip != 'true'
+    runs-on: ubuntu-latest
+    # ... rest of workflow
+```
+
+### Parallel Processing
+
+For bulk indexing, use matrix strategy:
+
+```yaml
+on:
+  schedule:
+    - cron: '0 2 * * 0'
+
+jobs:
+  index:
+    strategy:
+      matrix:
+        repo: ['repo-1', 'repo-2', 'repo-3']
+    runs-on: ubuntu-latest
+    steps:
+      - uses: similigh/simili-bot@v0.1.0
+        with:
+          command: "index"
+          config_path: ".github/simili.yaml"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          QDRANT_URL: ${{ secrets.QDRANT_URL }}
+          QDRANT_API_KEY: ${{ secrets.QDRANT_API_KEY }}
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+```
+
+## Troubleshooting
+
+### Workflow doesn't trigger
+- Check event types in `on:` section
+- Verify workflow file is on `main` branch
+- Check Actions are enabled in repository settings
+
+### "Configuration not found" error
+- Verify `.github/simili.yaml` exists on main branch
+- Check path matches exactly in workflow
+- Ensure file has valid YAML syntax
+
+### "Permission denied" error
+- Check workflow has `issues: write` permission
+- Verify token is not restricted
+- Check repository allows the action
+
+### Action times out (>30 min)
+- Increase Qdrant query timeout
+- Reduce number of similar issues to return
+- Use smaller `max_similar_to_show` value
+
+### Secrets not found
+- Verify secret names match exactly (case-sensitive)
+- Ensure secrets are set at repository level
+- Check they're not only set at organization level
+
+## Next Steps
+
+<CardGroup cols={1}>
+  <Card
+    title="Configure Simili Bot"
+    href="/configuration/overview"
+  >
+    Customize behavior for your repository
+  </Card>
+  <Card
+    title="View CLI Reference"
+    href="/reference/cli/process-command"
+  >
+    Understand all command options
+  </Card>
+  <Card
+    title="Debug Issues"
+    href="/guides/troubleshooting"
+  >
+    Resolve common problems
+  </Card>
+</CardGroup>

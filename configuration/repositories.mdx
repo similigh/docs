@@ -1,0 +1,420 @@
+---
+title: Repository Configuration
+description: Configure repositories for Simili Bot
+---
+
+# Repository Configuration
+
+Configure which repositories Simili Bot manages and how to handle them.
+
+## Basic Configuration
+
+Each repository in your list gets processed by Simili Bot:
+
+```yaml
+repositories:
+  - org: "github-org-or-username"
+    repo: "repository-name"
+    enabled: true
+    description: "Brief description of repository"
+```
+
+## Configuration Options
+
+### Required Fields
+
+```yaml
+repositories:
+  - org: "my-org"          # GitHub organization or username
+    repo: "my-repo"        # Repository name
+```
+
+### Optional Fields
+
+```yaml
+repositories:
+  - org: "my-org"
+    repo: "backend"
+    enabled: true              # Enable/disable Simili Bot (default: true)
+    description: "Backend..."  # For LLM routing decisions
+    labels:                    # Associated labels
+      - "backend"
+      - "api"
+```
+
+## Full Reference
+
+| Field | Type | Description | Default | Required |
+|-------|------|-------------|---------|----------|
+| `org` | string | GitHub org or username | - | Yes |
+| `repo` | string | Repository name | - | Yes |
+| `enabled` | boolean | Enable Simili Bot for this repo | true | No |
+| `description` | string | Description for LLM routing | - | No |
+| `labels` | array | Associated labels | - | No |
+
+## Single Repository
+
+Manage one repository:
+
+```yaml
+repositories:
+  - org: "my-username"
+    repo: "my-project"
+    enabled: true
+    description: "My open source project"
+```
+
+Configuration applies to all issues in this repository.
+
+## Multiple Repositories
+
+Manage multiple repositories with shared configuration:
+
+```yaml
+repositories:
+  - org: "my-company"
+    repo: "backend"
+    enabled: true
+    description: "Backend REST APIs and microservices"
+    labels: ["backend", "api"]
+
+  - org: "my-company"
+    repo: "frontend"
+    enabled: true
+    description: "React web application and UI components"
+    labels: ["frontend", "ui"]
+
+  - org: "my-company"
+    repo: "mobile"
+    enabled: true
+    description: "React Native mobile applications"
+    labels: ["mobile", "ios", "android"]
+
+  - org: "my-company"
+    repo: "infrastructure"
+    enabled: false  # Temporarily disabled
+    description: "Terraform and DevOps infrastructure"
+    labels: ["devops", "infrastructure"]
+```
+
+## Disable Specific Repositories
+
+Temporarily disable Simili Bot for a repository:
+
+```yaml
+repositories:
+  - org: "my-org"
+    repo: "experimental"
+    enabled: false  # Bot will skip this repo
+    description: "Experimental branch - no automation"
+```
+
+When `enabled: false`:
+- Simili Bot skips processing
+- No comments posted
+- No indexing to vector database
+- Re-enable by changing to `enabled: true`
+
+## Repository Descriptions
+
+Descriptions help Simili Bot make better routing decisions:
+
+```yaml
+repositories:
+  - org: "company"
+    repo: "backend"
+    description: "REST APIs, database layer, authentication, core business logic"
+
+  - org: "company"
+    repo: "frontend"
+    description: "React web UI, responsive design, user dashboard, forms"
+
+  - org: "company"
+    repo: "docs"
+    description: "User documentation, API guides, tutorials, how-to articles"
+```
+
+Good descriptions:
+- Explain the repository's purpose
+- List main components
+- Help the LLM understand the domain
+- Are 1-3 sentences
+
+Poor descriptions:
+- "The backend"
+- "Code repository"
+- "Project files"
+
+## Using Labels
+
+Associate labels with repositories for organization:
+
+```yaml
+repositories:
+  - org: "my-company"
+    repo: "mobile"
+    labels: ["mobile", "ios", "android", "react-native"]
+
+  - org: "my-company"
+    repo: "backend"
+    labels: ["backend", "api", "go", "microservices"]
+
+  - org: "my-company"
+    repo: "frontend"
+    labels: ["frontend", "react", "typescript", "ui"]
+```
+
+Labels help:
+- Organize issues semantically
+- Route issues to correct repositories
+- Filter searches
+- Team identification
+
+## Configuration Inheritance
+
+Share repository configurations across projects:
+
+### Base Configuration
+
+Create `.github/base-config.yaml`:
+
+```yaml
+defaults:
+  similarity_threshold: 0.70
+  max_similar_to_show: 5
+  cross_repo_search: true
+
+repositories:
+  - org: "my-org"
+    repo: "backend"
+    description: "Backend services"
+
+  - org: "my-org"
+    repo: "frontend"
+    description: "Web UI"
+```
+
+### Extend with Repository-Specific
+
+Create `.github/simili.yaml`:
+
+```yaml
+extends: "https://raw.githubusercontent.com/my-org/policies/main/base-config.yaml"
+
+# Override specific settings
+repositories:
+  - org: "my-org"
+    repo: "my-service"
+    enabled: true
+    description: "My specific service"
+```
+
+Benefits:
+- Consistency across projects
+- Single source of truth for policies
+- Easy updates to shared settings
+- Per-repository customization
+
+## Common Patterns
+
+### Team-Based Organization
+
+```yaml
+repositories:
+  - org: "my-org"
+    repo: "backend"
+    description: "Backend team: APIs, databases, auth"
+    labels: ["team:backend"]
+
+  - org: "my-org"
+    repo: "frontend"
+    description: "Frontend team: UI, web, client"
+    labels: ["team:frontend"]
+
+  - org: "my-org"
+    repo: "infra"
+    description: "Infra team: DevOps, deployment"
+    labels: ["team:infra"]
+```
+
+### Domain-Based Organization
+
+```yaml
+repositories:
+  - org: "my-org"
+    repo: "payment-service"
+    description: "Payment processing, billing, transactions"
+    labels: ["domain:payments"]
+
+  - org: "my-org"
+    repo: "user-service"
+    description: "User management, profiles, authentication"
+    labels: ["domain:users"]
+
+  - org: "my-org"
+    repo: "notification-service"
+    description: "Emails, SMS, push notifications"
+    labels: ["domain:notifications"]
+```
+
+### Maturity-Based
+
+```yaml
+repositories:
+  - org: "my-org"
+    repo: "stable-api"
+    description: "Production APIs - stable and maintained"
+    enabled: true
+
+  - org: "my-org"
+    repo: "beta-features"
+    description: "Beta functionality - use with caution"
+    enabled: true
+
+  - org: "my-org"
+    repo: "deprecated-lib"
+    description: "Legacy library - maintenance mode only"
+    enabled: false  # Don't process new issues
+```
+
+## Organization Structure
+
+### Single Organization
+
+If your company is one organization:
+
+```yaml
+repositories:
+  - org: "my-company"
+    repo: "backend"
+    # ... more repos
+```
+
+All repos use the same org.
+
+### Multiple Organizations
+
+If you have multiple organizations:
+
+```yaml
+repositories:
+  - org: "open-source-org"
+    repo: "project1"
+    enabled: true
+
+  - org: "company-org"
+    repo: "internal-service"
+    enabled: true
+
+  - org: "my-personal-account"
+    repo: "personal-project"
+    enabled: false
+```
+
+Mix different orgs in one configuration.
+
+## Validation
+
+Simili Bot validates repositories on startup:
+
+**Check:**
+- Repository exists and is accessible
+- GitHub token has required permissions
+- Organization name is correct
+
+**If invalid:**
+- Error message will indicate which repo failed
+- Pipeline exits without processing
+- Fix configuration and retry
+
+## Cross-Repository Search
+
+Enable searching across all configured repositories:
+
+```yaml
+defaults:
+  cross_repo_search: true  # Search all repos
+  similarity_threshold: 0.70
+  max_similar_to_show: 5
+```
+
+With `cross_repo_search: true`:
+- Similarity search returns issues from all repositories
+- Helps identify duplicate discussions across projects
+- Enables holistic issue management
+
+With `cross_repo_search: false`:
+- Only search within current repository
+- Reduces noise from unrelated projects
+- Better for independent projects
+
+## Best Practices
+
+### 1. Use Meaningful Names
+
+```yaml
+# Good
+- org: "acme-corp"
+  repo: "customer-api"
+
+# Vague
+- org: "acme-corp"
+  repo: "service1"
+```
+
+### 2. Provide Descriptions
+
+```yaml
+# Good - clear purpose
+description: "REST API for customer data, handling CRUD operations"
+
+# Vague
+description: "API service"
+```
+
+### 3. Consistent Organization
+
+```yaml
+# All together by team
+- org: "same-org"
+  repo: "team-a-service"
+- org: "same-org"
+  repo: "team-a-lib"
+```
+
+### 4. Enable Cross-Repo Search
+
+```yaml
+defaults:
+  cross_repo_search: true  # Help identify org-wide duplicates
+```
+
+### 5. Document in Comments
+
+```yaml
+# Production microservices
+repositories:
+  - org: "company"
+    repo: "auth-service"  # User authentication
+
+  # Infrastructure and tooling
+  - org: "company"
+    repo: "infrastructure"  # Terraform configs
+```
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card
+    title="Transfer Rules"
+    href="/configuration/transfer-rules"
+  >
+    Setup automatic issue routing
+  </Card>
+  <Card
+    title="Multi-Repo Setup"
+    href="/guides/multi-repo-setup"
+  >
+    Manage multiple repositories
+  </Card>
+</CardGroup>

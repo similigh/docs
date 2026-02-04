@@ -1,0 +1,69 @@
+---
+title: Issue Routing
+description: Automatically transfer issues to correct repositories
+---
+
+# Automatic Issue Routing
+
+Simili Bot intelligently routes issues to the correct repositories based on content and rules.
+
+## How It Works
+
+1. **Rule Evaluation** - Check against explicit routing rules
+2. **LLM Analysis** (optional) - Use AI for semantic routing
+3. **Transfer** - Move issue to target repository
+4. **Prevent Loops** - Avoid routing same issue multiple times
+
+## Example
+
+**New Issue in org/general**:
+```
+Title: How do I configure authentication?
+Body: I'm trying to set up OAuth...
+```
+
+**Routing Decision**: Issue contains "authentication" keywords
+- Rule matches: "Route to auth repository"
+- Issue transferred to: `org/authentication`
+
+## Configuration
+
+```yaml
+transfer:
+  enabled: true
+  llm_routing_enabled: true  # AI fallback
+  rules: []
+```
+
+See [Transfer Rules](/configuration/transfer-rules) for detailed setup.
+
+## Two Modes
+
+### Rule-Based
+Pattern matching on labels, title, body, author.
+- Fast (<100ms)
+- Explicit control
+- Predictable
+
+### LLM-Based
+AI understands issue semantics and repository descriptions.
+- Intelligent (<5s)
+- Context-aware
+- Flexible
+
+Use both together for best results!
+
+## Benefits
+
+✅ Issues in correct repositories
+✅ Better organization
+✅ Reduced manual sorting
+✅ Faster triage
+
+## Next Steps
+
+<CardGroup cols={1}>
+  <Card title="Transfer Rules Configuration" href="/configuration/transfer-rules">
+    Setup routing rules for your repositories
+  </Card>
+</CardGroup>

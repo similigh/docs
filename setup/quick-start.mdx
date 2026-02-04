@@ -1,0 +1,216 @@
+---
+title: Quick Start
+description: Get Simili Bot running in 5 minutes
+---
+
+# Quick Start
+
+Get Simili Bot v0.1.0 up and running in your GitHub repository in just 5 minutes.
+
+## What You'll Need
+
+Before starting, gather these:
+
+1. **Qdrant API Key & URL** from [Qdrant Cloud](https://cloud.qdrant.io)
+2. **Gemini API Key** from [Google AI Studio](https://aistudio.google.com/app/apikeys)
+3. Your **GitHub repository** where you want to enable Simili Bot
+4. **GitHub Personal Access Token** (for testing locally)
+
+## Step 1: Create Configuration File (1 min)
+
+Create `.github/simili.yaml` in your repository:
+
+```yaml
+qdrant:
+  url: "https://your-cluster.qdrant.io:6333"
+  api_key: "${QDRANT_API_KEY}"
+  collection: "issues"
+
+embedding:
+  provider: "gemini"
+  api_key: "${GEMINI_API_KEY}"
+  model: "text-embedding-004"
+  dimensions: 768
+
+defaults:
+  similarity_threshold: 0.70
+  max_similar_to_show: 5
+  cross_repo_search: false
+
+repositories:
+  - org: "your-username"
+    repo: "your-repo"
+    enabled: true
+    description: "Add a brief description of your repository"
+```
+
+Replace:
+- `your-cluster` with your Qdrant cluster name
+- `your-username` and `your-repo` with your actual repository details
+- Add a meaningful repository description
+
+## Step 2: Add GitHub Secrets (1 min)
+
+In your GitHub repository:
+
+1. Go to **Settings** → **Secrets and variables** → **Actions**
+2. Click **New repository secret**
+3. Add these three secrets:
+
+| Secret Name | Value |
+|-------------|-------|
+| `QDRANT_URL` | `https://your-cluster.qdrant.io:6333` |
+| `QDRANT_API_KEY` | Your Qdrant API key |
+| `GEMINI_API_KEY` | Your Gemini API key |
+
+## Step 3: Create GitHub Action Workflow (2 min)
+
+Create `.github/workflows/simili-bot.yml`:
+
+```yaml
+name: Simili Bot
+
+on:
+  issues:
+    types: [opened, edited]
+
+jobs:
+  simili:
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+      contents: read
+    steps:
+      - uses: similigh/simili-bot@v0.1.0
+        with:
+          command: "process"
+          config_path: ".github/simili.yaml"
+          dry_run: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          QDRANT_URL: ${{ secrets.QDRANT_URL }}
+          QDRANT_API_KEY: ${{ secrets.QDRANT_API_KEY }}
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+```
+
+Push both files to your repository.
+
+## Step 4: Test It Out (1 min)
+
+1. Open a new issue in your repository
+2. Simili Bot should process it automatically
+3. Check the **Actions** tab to see the workflow run
+4. Wait for completion
+
+Within 10-20 seconds, you should see:
+- GitHub Action completes
+- Comments posted on your issue with analysis
+- Initial indexing in Qdrant
+
+## What Happens Next
+
+Simili Bot will automatically:
+
+✅ **Find similar issues** - Identify related discussions
+✅ **Detect duplicates** - Flag potential duplicates with confidence
+✅ **Assess quality** - Score issue description completeness
+✅ **Suggest labels** - Recommend appropriate issue labels
+✅ **Index for search** - Add issue to semantic search database
+
+## Example Output
+
+When Simili Bot processes an issue, it posts a comment like:
+
+```
+🤖 Simili Bot Analysis
+
+## Similar Issues Found
+- #45: Authentication timeout (91% similar)
+- #23: Login flow issues (85% similar)
+
+## Quality Assessment
+Quality Score: 72/100
+Suggestions: Add reproduction steps, include error message
+
+## Suggested Labels
+- bug (95% confidence)
+- authentication (88% confidence)
+- high-priority (65% confidence)
+
+## Analysis
+This issue appears to be related to #45 with potential duplicate.
+```
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card
+    title="Explore Features"
+    icon="sparkles"
+    href="/overview/features"
+  >
+    Learn about all Simili Bot capabilities
+  </Card>
+  <Card
+    title="Configure Advanced Options"
+    icon="sliders"
+    href="/configuration/overview"
+  >
+    Customize behavior for your needs
+  </Card>
+  <Card
+    title="Setup Multi-Repo"
+    icon="layer-group"
+    href="/guides/multi-repo-setup"
+  >
+    Manage issues across multiple repositories
+  </Card>
+  <Card
+    title="View Architecture"
+    icon="diagram-project"
+    href="/overview/architecture"
+  >
+    Understand how Simili Bot works
+  </Card>
+</CardGroup>
+
+## Troubleshooting
+
+### Action fails with "Configuration not found"
+- Verify `.github/simili.yaml` file exists
+- Check file path in workflow matches exactly
+- Ensure YAML syntax is valid (use a YAML validator)
+
+### No comments appear on issues
+- Check **Actions** tab for workflow errors
+- Verify GitHub token has `issues: write` permission
+- Check that repository is listed in `simili.yaml`
+
+### API key errors
+- Verify secrets are set correctly in GitHub (no extra spaces)
+- Try regenerating API keys if recently changed
+- Check API is enabled in Google Cloud (for Gemini)
+
+### Still not working?
+
+Check the [Installation guide](/setup/installation) for detailed troubleshooting, or open an issue on [GitHub](https://github.com/similigh/simili-bot/issues).
+
+## Commands Cheat Sheet
+
+If using Simili Bot CLI locally:
+
+```bash
+# Test dry-run
+simili process --issue event.json --config simili.yaml --dry-run
+
+# Process issue for real
+simili process --issue event.json --config simili.yaml
+
+# Bulk index all issues from last 30 days
+simili index --repo owner/repo --since 30d
+
+# Index with multiple workers for speed
+simili index --repo owner/repo --since 7d --workers 10
+```
+
+Enjoy automated issue management! 🎉

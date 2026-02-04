@@ -1,0 +1,448 @@
+---
+title: Transfer Rules
+description: Configure automatic issue routing
+---
+
+# Transfer Rules
+
+Configure automatic issue routing to the correct repositories.
+
+## Overview
+
+Issue routing helps:
+- Move issues to correct repositories automatically
+- Prevent wrong-repo issues
+- Reduce manual sorting
+- Improve issue organization
+
+Two routing modes:
+1. **Rule-Based**: Pattern matching on metadata
+2. **LLM-Based**: Semantic analysis with AI
+
+## Enable Transfer
+
+```yaml
+transfer:
+  enabled: true
+  llm_routing_enabled: true
+  rules: []
+```
+
+With `enabled: false`, no routing happens.
+
+## Rule-Based Routing
+
+Match issues against explicit patterns:
+
+```yaml
+transfer:
+  enabled: true
+  llm_routing_enabled: false  # Use rules only
+  rules:
+    - name: "Route documentation issues"
+      priority: 10
+      target: "org/docs"
+      title_contains: ["documentation", "docs", "guide"]
+      enabled: true
+
+    - name: "Route GitHub Actions issues"
+      priority: 5
+      target: "org/workflows"
+      body_contains: ["github actions", "workflow", ".yml"]
+```
+
+### Rule Matching Logic
+
+All conditions must match (AND logic):
+
+```yaml
+- name: "Backend bug fixes"
+  priority: 10
+  target: "org/backend"
+  labels: ["bug"]              # AND: must have "bug" label
+  title_contains: ["API", "error"]  # AND: title must contain either word
+  author: "john"               # AND: author must be "john"
+```
+
+If all conditions match → issue is routed to target.
+
+### Condition Types
+
+#### 1. Labels (AND - all required)
+
+```yaml
+labels: ["bug", "urgent"]  # Must have BOTH labels
+```
+
+#### 2. Labels Any (OR - any required)
+
+```yaml
+labels_any: ["bug", "feature"]  # Must have either label
+```
+
+#### 3. Title Contains
+
+```yaml
+title_contains: ["api", "error"]  # Title must contain "api" OR "error"
+```
+
+#### 4. Body Contains
+
+```yaml
+body_contains: ["authentication", "login"]  # Body must contain either
+```
+
+#### 5. Author
+
+```yaml
+author: "bot-user"  # Exact username match
+```
+
+### Priority
+
+Rules evaluated by priority (highest first):
+
+```yaml
+rules:
+  - name: "High priority rule"
+    priority: 100
+    target: "org/urgent"
+
+  - name: "Medium priority rule"
+    priority: 50
+    target: "org/standard"
+
+  - name: "Default rule"
+    priority: 1
+    target: "org/general"
+```
+
+First matching rule wins.
+
+## LLM-Based Routing
+
+Use AI to understand issue content:
+
+```yaml
+transfer:
+  enabled: true
+  llm_routing_enabled: true
+  rules: []  # Optional, LLM acts as fallback
+```
+
+LLM routing:
+- Analyzes issue against repository descriptions
+- Understands semantic context
+- Makes intelligent decisions
+- Configurable as primary or fallback
+
+### Combined Approach
+
+Use both rule-based and LLM:
+
+```yaml
+transfer:
+  enabled: true
+  llm_routing_enabled: true
+  rules:
+    - name: "Obvious routing"
+      priority: 100
+      target: "org/docs"
+      title_contains: ["documentation"]
+
+    # If no rules match, LLM decides
+```
+
+## Complete Rule Example
+
+```yaml
+transfer:
+  enabled: true
+  llm_routing_enabled: true
+  rules:
+    # Documentation issues
+    - name: "Route documentation"
+      priority: 100
+      target: "my-org/docs"
+      title_contains: ["documentation", "docs", "guide", "tutorial"]
+      enabled: true
+
+    # Backend/API issues
+    - name: "Backend issues"
+      priority: 90
+      target: "my-org/backend"
+      labels: ["backend"]
+      title_contains: ["api", "server", "database"]
+      enabled: true
+
+    # Frontend issues
+    - name: "Frontend issues"
+      priority: 85
+      target: "my-org/frontend"
+      labels: ["frontend"]
+      title_contains: ["ui", "button", "component", "react"]
+      enabled: true
+
+    # Security issues (labeled as such)
+    - name: "Security"
+      priority: 95
+      target: "my-org/security"
+      labels: ["security"]
+      enabled: true
+
+    # Issues from automation
+    - name: "Bot created issues"
+      priority: 10
+      target: "my-org/triage"
+      author: "github-actions"
+      enabled: true
+```
+
+## Avoiding Routing Loops
+
+Prevent infinite routing:
+
+```yaml
+rules:
+  - name: "Route to other repo"
+    priority: 10
+    target: "org/other-repo"
+    title_contains: ["routing"]
+```
+
+Simili Bot automatically:
+- Tracks which repo an issue came from
+- Prevents routing back to same repo
+- Maintains blocked_targets list
+- Won't route same issue twice
+
+## Disable Specific Rules
+
+Temporarily disable a rule:
+
+```yaml
+rules:
+  - name: "Experimental routing"
+    priority: 50
+    target: "org/experimental"
+    enabled: false  # Won't be evaluated
+```
+
+## Common Patterns
+
+### By Feature Area
+
+```yaml
+rules:
+  - name: "Auth issues"
+    target: "org/auth"
+    title_contains: ["login", "authentication", "password", "oauth"]
+    labels_any: ["auth", "security"]
+
+  - name: "Payment issues"
+    target: "org/payments"
+    title_contains: ["billing", "payment", "invoice", "subscription"]
+    labels_any: ["billing"]
+
+  - name: "Notification issues"
+    target: "org/notifications"
+    title_contains: ["email", "notification", "sms", "alert"]
+```
+
+### By Issue Type
+
+```yaml
+rules:
+  - name: "Bugs to QA"
+    priority: 100
+    target: "org/qa"
+    labels: ["bug"]
+
+  - name: "Features to product"
+    priority: 95
+    target: "org/product-backlog"
+    labels: ["feature-request"]
+
+  - name: "Questions to support"
+    priority: 90
+    target: "org/support"
+    labels: ["question"]
+```
+
+### By Team
+
+```yaml
+rules:
+  - name: "Backend team"
+    target: "org/backend"
+    labels: ["team:backend"]
+
+  - name: "Frontend team"
+    target: "org/frontend"
+    labels: ["team:frontend"]
+```
+
+## Configuration Reference
+
+```yaml
+transfer:
+  enabled: boolean              # Enable/disable routing
+  llm_routing_enabled: boolean  # Use AI for routing
+  rules: array                  # Array of rules
+```
+
+### Rule Fields
+
+```yaml
+- name: string                  # Rule name (for logs)
+  priority: number              # Evaluation order (higher first)
+  target: "org/repo"           # Target repository
+  enabled: boolean              # Enable/disable this rule
+  labels: array                 # AND condition
+  labels_any: array            # OR condition
+  title_contains: array        # Title text matching
+  body_contains: array         # Body text matching
+  author: string               # Author matching
+```
+
+## Testing Rules
+
+### Dry-Run Mode
+
+Test without transferring:
+
+```bash
+simili process --issue event.json --config simili.yaml --dry-run
+```
+
+Output shows:
+```
+[DRY RUN] Would route to org/backend
+[DRY RUN] Would post comment: "Moved to correct repository"
+```
+
+### Check Logs
+
+Logs show routing decisions:
+```
+Evaluating rule: "Backend issues"
+  Condition check: labels → PASS
+  Condition check: title_contains → PASS
+  Rule matches → Route to org/backend
+```
+
+## Troubleshooting
+
+### Rule Not Matching
+
+**Debug steps:**
+1. Check rule is `enabled: true`
+2. Verify all conditions are correct
+3. Use dry-run to see which rules match
+4. Check logs for condition evaluation
+
+### Wrong Repository Selected
+
+**Causes:**
+- Higher priority rule matches first
+- Adjust rule priorities
+- Add more specific conditions
+- Enable LLM fallback for context
+
+### Issue Not Transferred
+
+**Causes:**
+- Rule didn't match
+- Transfer disabled (`enabled: false`)
+- Permission denied
+- Loop prevention blocked transfer
+
+**Solutions:**
+- Enable transfer
+- Check GitHub token permissions
+- Verify target repo exists
+- Check rule conditions
+
+## Performance Notes
+
+- Rule evaluation is fast (<100ms)
+- LLM routing takes 2-5 seconds
+- Combine for best results:
+  - Rules for obvious cases
+  - LLM as fallback/intelligent
+
+## Best Practices
+
+### 1. Use Clear Rule Names
+
+```yaml
+# Good
+- name: "Route documentation issues to docs repository"
+
+# Vague
+- name: "docs"
+```
+
+### 2. Start with High Priorities
+
+```yaml
+rules:
+  - priority: 100  # Most specific
+  - priority: 50
+  - priority: 1    # Most general
+```
+
+### 3. Combine Conditions Carefully
+
+```yaml
+# Good - all conditions make sense
+- target: "org/backend"
+  labels: ["backend"]
+  title_contains: ["api"]
+
+# Over-specific - might never match
+- target: "org/backend"
+  labels: ["backend", "api", "urgent"]
+  title_contains: ["rest", "http"]
+```
+
+### 4. Monitor Routing
+
+Check logs regularly:
+- Are issues going to right repos?
+- Any unexpected routings?
+- Adjust rules as needed
+
+### 5. Use LLM as Fallback
+
+```yaml
+transfer:
+  enabled: true
+  llm_routing_enabled: true
+  rules: []  # Let LLM handle all
+```
+
+Or use with rules:
+```yaml
+rules:
+  - name: "Obvious patterns"
+    priority: 100
+    # ... conditions
+```
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card
+    title="Issue Routing Guide"
+    href="/guides/issue-routing"
+  >
+    Learn how issue routing works
+  </Card>
+  <Card
+    title="Multi-Repo Setup"
+    href="/guides/multi-repo-setup"
+  >
+    Setup multi-repository management
+  </Card>
+</CardGroup>

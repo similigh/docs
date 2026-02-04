@@ -1,0 +1,186 @@
+---
+title: Pipeline Steps
+description: Reference for all 13 pipeline steps
+---
+
+# Pipeline Steps
+
+Simili Bot's modular pipeline consists of 13 composable steps.
+
+## Step Overview
+
+| # | Step | Purpose | Speed | Dependencies |
+|---|------|---------|-------|---|
+| 1 | gatekeeper | Check repo enabled | <1ms | Config |
+| 2 | command_handler | Parse commands | <10ms | GitHub |
+| 3 | vectordb_prep | Ensure collection | 10-100ms | Qdrant |
+| 4 | similarity_search | Find related | 500ms-1s | Qdrant, Embedder |
+| 5 | transfer_check | Rule-based route | <100ms | Transfer |
+| 6 | llm_router | AI routing | 2-5s | LLM |
+| 7 | duplicate_detector | Identify dupes | 2-5s | LLM |
+| 8 | quality_checker | Score issue | 1-3s | LLM |
+| 9 | triage | Suggest labels | 1-2s | LLM |
+| 10 | response_builder | Build comment | <100ms | Results |
+| 11 | action_executor | Post to GitHub | 100-500ms | GitHub API |
+| 12 | indexer | Add to vector DB | 500ms-1s | Qdrant, Embedder |
+| 13 | pending_actions | Schedule ops | <10ms | State |
+
+## Detailed Steps
+
+### 1. gatekeeper
+Checks if repository is enabled in configuration.
+
+**Input:** Issue, Config
+**Output:** Skip if disabled
+**Speed:** <1ms
+**Dependencies:** None
+
+### 2. command_handler
+Processes `@simili-bot` commands in issue comments.
+
+**Input:** Comments
+**Output:** Commands parsed
+**Speed:** <10ms
+**Dependencies:** GitHub API
+
+### 3. vectordb_prep
+Ensures Qdrant collection exists, creates if needed.
+
+**Input:** Config
+**Output:** Collection ready
+**Speed:** 10-100ms
+**Dependencies:** Qdrant
+
+### 4. similarity_search
+Finds related issues using semantic search.
+
+**Input:** Issue embedding
+**Output:** Related issues list
+**Speed:** 500ms-1s
+**Dependencies:** Qdrant, Embedder
+
+### 5. transfer_check
+Evaluates rule-based routing against configured rules.
+
+**Input:** Issue metadata
+**Output:** Target repository (or empty)
+**Speed:** <100ms
+**Dependencies:** Transfer matcher
+
+### 6. llm_router
+Uses AI to determine correct repository based on content.
+
+**Input:** Issue + repo descriptions
+**Output:** Routing recommendation
+**Speed:** 2-5s
+**Dependencies:** LLM (Gemini)
+
+### 7. duplicate_detector
+Analyzes similar issues to identify duplicates.
+
+**Input:** Similar issues, current issue
+**Output:** Duplicate info + confidence score
+**Speed:** 2-5s
+**Dependencies:** LLM
+
+### 8. quality_checker
+Assesses issue description quality.
+
+**Input:** Issue content
+**Output:** Quality score + improvement suggestions
+**Speed:** 1-3s
+**Dependencies:** LLM
+
+### 9. triage
+Suggests appropriate labels based on content.
+
+**Input:** Issue + existing labels
+**Output:** Suggested labels with confidence
+**Speed:** 1-2s
+**Dependencies:** LLM
+
+### 10. response_builder
+Constructs comprehensive analysis comment from results.
+
+**Input:** All previous step results
+**Output:** Formatted comment text
+**Speed:** <100ms
+**Dependencies:** None (uses previous results)
+
+### 11. action_executor
+Posts to GitHub and applies suggested actions.
+
+**Input:** Comment text, labels, transfer target
+**Output:** GitHub updates
+**Speed:** 100-500ms per action
+**Dependencies:** GitHub API
+
+### 12. indexer
+Adds or updates issue in vector database for semantic search.
+
+**Input:** Issue text + metadata
+**Output:** Indexed in Qdrant
+**Speed:** 500ms-1s
+**Dependencies:** Embedder, Qdrant
+
+### 13. pending_action_scheduler
+Schedules actions for later execution.
+
+**Input:** Pending actions
+**Output:** Scheduled operations
+**Speed:** <10ms
+**Dependencies:** State management
+
+## Execution Flow
+
+```
+START
+  ↓
+gatekeeper (Check enabled)
+  ↓
+command_handler (Parse commands)
+  ↓
+vectordb_prep (Create collection)
+  ↓
+similarity_search (Find related)
+  ↓
+transfer_check (Rule routing)
+  ↓
+llm_router (AI routing)
+  ↓
+duplicate_detector (Find dupes)
+  ↓
+quality_checker (Score)
+  ↓
+triage (Suggest labels)
+  ↓
+response_builder (Build message)
+  ↓
+action_executor (Post actions)
+  ↓
+indexer (Add to DB)
+  ↓
+pending_action_scheduler (Schedule)
+  ↓
+END (Output results)
+```
+
+Each step processes the same `Context` object, passing data forward.
+
+## Step Dependencies
+
+Steps can be reordered but dependencies matter:
+
+- `similarity_search` needs `vectordb_prep`
+- `duplicate_detector` needs `similarity_search`
+- `llm_router` optional (needs LLM only)
+- `response_builder` should be near end
+- `action_executor` should be near end
+
+## Next Steps
+
+<CardGroup cols={1}>
+  <Card title="Pipeline Context" href="/reference/pipeline/context">
+    How context flows through steps
+  </Card>
+</CardGroup>

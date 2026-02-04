@@ -1,0 +1,307 @@
+---
+title: Multi-Repository Setup
+description: Manage issues across multiple repositories
+---
+
+# Multi-Repository Setup
+
+Scale Simili Bot across your entire organization with centralized configuration.
+
+## Overview
+
+**Single Repository:**
+```
+simili.yaml
+  └─ Repository: owner/repo
+```
+
+**Multi-Repository:**
+```
+simili.yaml
+  ├─ Repository: owner/backend
+  ├─ Repository: owner/frontend
+  ├─ Repository: owner/infra
+  └─ Repository: owner/docs
+```
+
+## Setup
+
+### 1. Configure All Repositories
+
+```yaml
+defaults:
+  cross_repo_search: true
+  similarity_threshold: 0.70
+
+repositories:
+  - org: "my-org"
+    repo: "backend"
+    enabled: true
+    description: "REST APIs and services"
+
+  - org: "my-org"
+    repo: "frontend"
+    enabled: true
+    description: "Web UI and React app"
+
+  - org: "my-org"
+    repo: "mobile"
+    enabled: true
+    description: "Mobile apps"
+```
+
+### 2. Same Secrets Across Repos
+
+All repositories use same Qdrant and Gemini instances:
+
+```yaml
+qdrant:
+  url: "${QDRANT_URL}"
+  api_key: "${QDRANT_API_KEY}"
+  collection: "org-issues"  # Shared collection
+```
+
+### 3. Shared GitHub Action
+
+Deploy same workflow to all repositories:
+
+```yaml
+name: Simili Bot
+
+on:
+  issues:
+    types: [opened, edited]
+
+jobs:
+  simili:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: similigh/simili-bot@v0.1.0
+        with:
+          command: "process"
+          config_path: ".github/simili.yaml"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          QDRANT_URL: ${{ secrets.ORG_QDRANT_URL }}
+          QDRANT_API_KEY: ${{ secrets.ORG_QDRANT_API_KEY }}
+          GEMINI_API_KEY: ${{ secrets.ORG_GEMINI_API_KEY }}
+```
+
+## Benefits
+
+✅ **Unified Knowledge Base**
+- Semantic search across all repos
+- Find related issues across projects
+- See organization-wide patterns
+
+✅ **Consistent Rules**
+- Same quality standards
+- Unified labeling
+- Consistent triage
+
+✅ **Easy Maintenance**
+- One configuration file
+- Update rules once, applies everywhere
+- Centralized policy
+
+✅ **Better Routing**
+- Issues go to correct repos automatically
+- Organization-wide organization
+
+## Configuration Inheritance
+
+Share configuration across repositories:
+
+**Organization Base:**
+```yaml
+# .github/org-simili.yaml (in shared repo)
+defaults:
+  similarity_threshold: 0.70
+  cross_repo_search: true
+
+repositories:
+  - org: "company"
+    repo: "backend"
+  - org: "company"
+    repo: "frontend"
+
+transfer:
+  enabled: true
+  llm_routing_enabled: true
+```
+
+**Repository Override:**
+```yaml
+# .github/simili.yaml (in individual repo)
+extends: "https://raw.githubusercontent.com/company/policies/main/simili.yaml"
+
+# Override specific settings
+repositories:
+  - org: "company"
+    repo: "my-service"
+    enabled: true
+```
+
+## Cross-Repository Search
+
+Find issues across all repositories:
+
+```yaml
+defaults:
+  cross_repo_search: true  # Search all repos
+  max_similar_to_show: 5
+```
+
+When enabled, Simili Bot shows similar issues from:
+- Current repository
+- All other repositories in config
+- Entire organization
+
+Helps identify:
+- Duplicate issues across repos
+- Common problems
+- Related discussions
+
+## Coordination Example
+
+**Scenario:** User opens issue "Login broken" in frontend repo
+
+**Simili Bot Actions:**
+1. Searches backend, frontend, mobile repos
+2. Finds similar issues:
+   - frontend #234: "Sign in button not working" (95%)
+   - backend #45: "Auth endpoint down" (88%)
+   - mobile #67: "App can't authenticate" (85%)
+3. Posts comprehensive analysis
+4. Optionally routes to central issue tracker
+
+## Organization Structure
+
+### Team-Based
+
+```yaml
+repositories:
+  - org: "company"
+    repo: "team-a-backend"
+    labels: ["team:a"]
+
+  - org: "company"
+    repo: "team-a-frontend"
+    labels: ["team:a"]
+
+  - org: "company"
+    repo: "team-b-services"
+    labels: ["team:b"]
+```
+
+### Domain-Based
+
+```yaml
+repositories:
+  - org: "company"
+    repo: "auth-service"
+    description: "Authentication and authorization"
+    labels: ["domain:auth"]
+
+  - org: "company"
+    repo: "payment-service"
+    description: "Billing and payments"
+    labels: ["domain:payments"]
+
+  - org: "company"
+    repo: "notification-service"
+    description: "Email and SMS"
+    labels: ["domain:notifications"]
+```
+
+## Best Practices
+
+### 1. Use Shared Organization Secrets
+
+```yaml
+env:
+  QDRANT_URL: ${{ secrets.ORG_QDRANT_URL }}
+  QDRANT_API_KEY: ${{ secrets.ORG_QDRANT_API_KEY }}
+  GEMINI_API_KEY: ${{ secrets.ORG_GEMINI_API_KEY }}
+```
+
+Set at organization level in GitHub:
+- Settings → Secrets and variables → Actions
+- Grant access to all repositories
+
+### 2. Version Control Configuration
+
+```bash
+# Store in shared repository
+company/policies/
+  └─ simili.yaml
+```
+
+Easy updates and history tracking.
+
+### 3. Index All Issues
+
+Bulk index all historical issues once:
+
+```bash
+# Index backend
+simili index --repo company/backend --since 2020-01-01
+
+# Index frontend
+simili index --repo company/frontend --since 2020-01-01
+
+# Index mobile
+simili index --repo company/mobile --since 2020-01-01
+```
+
+## Troubleshooting
+
+### Cross-Repo Search Not Working
+
+Check configuration:
+```yaml
+defaults:
+  cross_repo_search: true  # Must be enabled
+```
+
+### Too Many Suggestions
+
+Reduce results:
+```yaml
+defaults:
+  max_similar_to_show: 3  # Show fewer
+  similarity_threshold: 0.75  # Higher threshold
+```
+
+### Configuration Not Found
+
+Verify `simili.yaml` exists in all repositories.
+
+## Monitoring
+
+View issues across organization:
+- Go to organization
+- Use GitHub Issues global search
+- See all issues with Simili Bot comments
+- Monitor routing decisions
+
+## Performance at Scale
+
+**Organization with 50+ repositories:**
+- Use multi-repo configuration
+- One Qdrant collection for all
+- ~1MB per 10,000 issues in vector DB
+- Cross-repo search: 0.5-2 seconds
+
+Scales efficiently with semantic search.
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Config Inheritance" href="/guides/config-inheritance">
+    Setup shared configurations
+  </Card>
+  <Card title="Deployment Guide" href="/guides/deployment">
+    Deploy at scale
+  </Card>
+</CardGroup>

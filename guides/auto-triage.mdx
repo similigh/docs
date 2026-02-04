@@ -1,0 +1,65 @@
+---
+title: Auto Triage
+description: Automatically suggest labels for issues
+---
+
+# Auto Triage
+
+Simili Bot automatically analyzes issues and suggests appropriate labels.
+
+## How It Works
+
+1. **Read Issue** - Extract title, description, and context
+2. **Analyze** - Use AI to understand issue type and context
+3. **Suggest Labels** - Return labels with confidence scores
+4. **Post Comment** - Show suggestions for manual review
+5. **Optional Action** - Can auto-apply labels if desired
+
+## Example
+
+**New Issue: "Database queries are slow"**
+
+Simili Bot suggests:
+```
+## Suggested Labels
+- performance (95% confidence)
+- database (92% confidence)
+- bug (78% confidence)
+- needs-investigation (65% confidence)
+```
+
+## Configuration
+
+Auto-triage is part of "issue-triage" workflow:
+
+```yaml
+- uses: similigh/simili-bot@v0.1.0
+  with:
+    workflow: "issue-triage"  # Includes auto-triage
+```
+
+## Smart Suggestions
+
+Works with your repository's labels:
+- Analyzes existing labels
+- Learns from historical issues
+- Respects your labeling conventions
+- Suggests only labels that exist
+
+## Benefits
+
+✅ Consistent labeling
+✅ Faster issue categorization
+✅ No manual label selection
+✅ Helps new contributors understand labels
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Multi-Repo Setup" href="/guides/multi-repo-setup">
+    Manage labels across multiple repositories
+  </Card>
+  <Card title="Quality Assessment" href="/guides/quality-assessment">
+    Improve issue description quality
+  </Card>
+</CardGroup>
