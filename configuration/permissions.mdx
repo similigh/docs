@@ -1,0 +1,564 @@
+---
+title: "GitHub Permissions Guide"
+description: "Understand and configure GitHub permissions for each deployment pattern"
+---
+
+# GitHub Permissions Guide
+
+Different Simili Bot deployment patterns require different GitHub permissions. This guide helps you understand what's needed and how to set it up securely.
+
+## Quick Reference
+
+| Pattern | Pattern A | Pattern B | Pattern C |
+|---------|-----------|-----------|-----------|
+| **Single Repo** | 1 | Multiple | Multiple |
+| **Token Type** | Default | PAT/App | Default |
+| **Repo Scope** | Current repo | All target repos | Own repo |
+| **Cross-repo transfer** | N/A | ✅ | ❌ (needs PAT) |
+| **Permissions** | Standard | Elevated | Standard |
+| **Setup Time** | 2 min | 10 min | 2 min/repo |
+
+---
+
+## Permission Requirements by Pattern
+
+### Pattern A: Single Repository
+
+**What's needed:**
+- Default `GITHUB_TOKEN` (automatically provided)
+- Only needs access to current repository
+
+**GitHub Action permissions:**
+
+```yaml
+permissions:
+  issues: write      # Post comments to issues
+  contents: read     # Read config file
+```
+
+**Capabilities:**
+- ✅ Read issues in current repo
+- ✅ Post comments to issues
+- ✅ Search issues in current repo only
+- ✅ Index issues to Qdrant
+- ❌ Access other repositories
+- ❌ Transfer issues between repos
+
+**Setup time:** ~2 minutes (just GitHub secrets)
+
+### Pattern B: Centralized Multi-Repository
+
+**What's needed:**
+- Personal Access Token (PAT) **OR** GitHub App token
+- Access to multiple repositories across organization
+- Elevated scope: `repo` (full control of private repositories)
+
+**GitHub Action permissions:**
+
+```yaml
+permissions:
+  issues: write      # Post comments to issues in target repos
+  contents: read     # Read config from control repo
+```
+
+**Capabilities:**
+- ✅ Read issues across all target repositories
+- ✅ Post comments to any repository
+- ✅ Create issues in other repositories
+- ✅ Transfer issues between repositories
+- ✅ Add labels to issues
+- ✅ Close issues in other repositories
+- ✅ Search across all configured repositories
+
+**Setup time:** ~10-15 minutes (create token + configure)
+
+### Pattern C: Distributed Multi-Repository
+
+**What's needed:**
+- Default `GITHUB_TOKEN` (automatically provided to each repo)
+- Shared Qdrant instance for cross-repo search
+- Optional: PAT if you need cross-repo issue transfers
+
+**GitHub Action permissions (per repo):**
+
+```yaml
+permissions:
+  issues: write      # Post comments to own issues
+  contents: read     # Read own config
+```
+
+**Basic capabilities (with default token):**
+- ✅ Read issues in own repository
+- ✅ Post comments to own repository
+- ✅ Search across all repositories (via shared Qdrant)
+- ✅ Index to shared Qdrant collection
+- ❌ Transfer issues between repositories
+
+**Enhanced capabilities (with elevated token):**
+- ✅ All of the above, plus:
+- ✅ Transfer issues between repositories
+- ✅ Create issues in other repositories
+
+**Setup time:** ~2 minutes per repository
+
+---
+
+## Token Types Explained
+
+### Default GITHUB_TOKEN
+
+Automatically provided by GitHub Actions. Scoped to the current repository.
+
+**Pros:**
+- No setup required
+- Automatically refreshed
+- Secure (per-repo scope)
+- Short-lived (1 hour)
+
+**Cons:**
+- Can't access other repositories
+- Can't transfer issues across repos
+- Limited to current repo operations
+
+**When to use:**
+- Pattern A (single repo)
+- Pattern C (distributed, no cross-repo transfers)
+
+### Personal Access Token (PAT)
+
+A token you create and manage.
+
+**Classic PAT (Recommended for simplicity):**
+
+1. **Create PAT:**
+   - Go to GitHub **Settings** → **Developer settings** → **Personal access tokens** → **Tokens (classic)**
+   - Click **Generate new token**
+   - Choose scopes (see below)
+   - Copy token (won't be shown again)
+
+2. **Scopes for Pattern B:**
+   ```
+   ✅ repo (Full control of private repositories)
+   ✅ public_repo (if managing public repos)
+   ✅ workflow (optional, for workflow permissions)
+   ```
+
+3. **Store securely:**
+   - Add to repository secrets as `GITHUB_TOKEN_PAT`
+   - Add to organization secrets (preferred)
+   - Never commit to version control
+
+**Fine-grained PAT (More secure but complex):**
+
+Allows limiting permissions to specific repositories and actions. See GitHub docs for setup.
+
+**Pros:**
+- Permanent (until revoked)
+- Centrally managed
+- Can be used across multiple repos/workflows
+
+**Cons:**
+- Requires manual creation
+- Manual rotation needed
+- Higher security risk if exposed
+
+**When to use:**
+- Pattern B (centralized multi-repo)
+- When you need organization-wide access
+- When GitHub Apps aren't available
+
+### GitHub App Token
+
+A token generated from a GitHub App installed on your organization.
+
+**Pros:**
+- More secure (app-specific permissions)
+- Can be scoped to specific repositories
+- Automatic token rotation
+- Organization-managed
+- Better for webhooks
+
+**Cons:**
+- More complex to set up
+- Requires GitHub App creation
+- Requires app installation on target repos
+
+**When to use:**
+- Pattern B with webhook triggers
+- Large organizations with security requirements
+- When you need fine-grained webhook permissions
+
+---
+
+## Setup Instructions
+
+### PAT Setup for Pattern B
+
+#### Step 1: Create Personal Access Token
+
+1. Go to https://github.com/settings/tokens
+2. Click **Generate new token** → **Generate new token (classic)**
+3. Enter token name: `SIMILI_BOT_PAT`
+4. Select expiration: `90 days` (or your preference)
+5. **Select scopes:**
+   - ✅ `repo` — Full control of private repositories
+   - ✅ `public_repo` — Access to public repositories
+6. Click **Generate token**
+7. **Copy the token immediately** (you won't see it again)
+
+#### Step 2: Add to Organization Secrets (Recommended)
+
+1. Go to your organization **Settings** → **Secrets and variables** → **Actions**
+2. Click **New organization secret**
+3. Name: `GITHUB_TOKEN_PAT`
+4. Value: [paste the token from Step 1]
+5. **Grant access to:** Select `simili-bot-control` repository (or all)
+6. Click **Add secret**
+
+#### Step 3: Update Workflow
+
+In your control repo workflow, use the organization secret:
+
+```yaml
+env:
+  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN_PAT }}
+  # Other secrets...
+```
+
+#### Step 4: Test
+
+1. Open an issue in a target repository
+2. Check control repo's **Actions** tab
+3. Verify workflow processes the issue
+4. Verify comment appears on the issue
+
+### GitHub App Setup for Pattern B
+
+#### Step 1: Create GitHub App
+
+1. Go to your organization **Settings** → **Developer settings** → **GitHub Apps**
+2. Click **New GitHub App**
+3. **App name:** `Simili Bot`
+4. **Homepage URL:** `https://github.com/your-org/simili-bot-control`
+5. **Webhook URL:** Leave blank (for now)
+6. **Uncheck:** "Webhook active"
+
+#### Step 2: Configure Permissions
+
+1. **Repository permissions:**
+   - Issues: `Read & write` (to post comments)
+   - Contents: `Read-only` (to read config)
+
+2. **Subscribe to events:**
+   - ✅ Issues
+   - ✅ Pull requests (optional)
+   - ✅ Issue comment (optional)
+
+3. Click **Create GitHub App**
+
+#### Step 3: Generate Private Key
+
+1. Scroll down to **Private keys**
+2. Click **Generate a private key**
+3. This downloads a `.pem` file (keep it secure)
+
+#### Step 4: Install App on Organization
+
+1. In GitHub App settings, click **Install App**
+2. Select your organization
+3. Choose **All repositories** or select specific ones
+4. Click **Install**
+
+#### Step 5: Get App ID and Installation ID
+
+1. Go to app settings → **About**
+2. Note the **App ID** (e.g., 123456)
+3. Go to **Installations** (left sidebar)
+4. Note the **Installation ID** (e.g., 987654)
+
+#### Step 6: Generate Access Token
+
+You'll need to programmatically generate tokens. Simili Bot handles this, but you need to provide:
+
+In your workflow, set these secrets:
+
+```yaml
+env:
+  GITHUB_APP_ID: ${{ secrets.GITHUB_APP_ID }}
+  GITHUB_APP_PRIVATE_KEY: ${{ secrets.GITHUB_APP_PRIVATE_KEY }}
+```
+
+**Or** use a pre-built action like `actions/create-github-app-token@v1`
+
+#### Step 7: Configure Webhook (Optional)
+
+If using webhook triggering:
+
+1. Go to GitHub App settings
+2. Check **Webhook active**
+3. Set **Webhook URL** to: `https://github.com/your-org/simili-bot-control/actions`
+4. Generate a **Webhook secret**
+5. Add to repository secrets: `WEBHOOK_SECRET`
+
+### Organization Secrets Setup (All Patterns)
+
+Shared organization secrets are available to all selected repositories, reducing duplication.
+
+#### For Pattern B:
+
+```yaml
+ORG_QDRANT_URL: https://your-cluster.qdrant.io:6333
+ORG_QDRANT_API_KEY: your-api-key
+ORG_GEMINI_API_KEY: your-api-key
+```
+
+#### For Pattern C:
+
+```yaml
+ORG_QDRANT_URL: https://your-cluster.qdrant.io:6333
+ORG_QDRANT_API_KEY: your-api-key
+ORG_GEMINI_API_KEY: your-api-key
+```
+
+**Setup:**
+
+1. Go to organization **Settings** → **Secrets and variables** → **Actions**
+2. Click **New organization secret**
+3. Add each secret
+4. Set access level (all repos or selected)
+5. Repositories can use: `${{ secrets.ORG_QDRANT_API_KEY }}`
+
+---
+
+## Permission Scope Examples
+
+### Pattern A: Current Repo Only
+
+```yaml
+env:
+  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Default token
+```
+
+Can only access current repo.
+
+### Pattern B: Multiple Repos
+
+```yaml
+env:
+  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN_PAT }}  # Your PAT
+```
+
+Can access all repos in organization.
+
+### Pattern C: Own Repo + Shared Qdrant
+
+```yaml
+env:
+  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Default token
+```
+
+Own repo actions only. Shared Qdrant via API key (not GitHub API).
+
+---
+
+## Security Best Practices
+
+### 1. Minimize Token Scope
+
+Use the smallest scope possible for what you need:
+
+```yaml
+# ❌ Bad: More permissions than needed
+- repo (full repo access)
+
+# ✅ Good: Only what's needed
+- public_repo + repo (scoped to specific repos)
+```
+
+### 2. Rotate PAT Regularly
+
+- Set 90-day expiration on PATs
+- Create new PAT before expiration
+- Revoke old PAT
+- Update secrets
+
+### 3. Use Organization Secrets
+
+```yaml
+# ❌ Bad: Duplicate secrets in each repo
+repo1/.github/workflows: GITHUB_TOKEN_PAT
+repo2/.github/workflows: GITHUB_TOKEN_PAT
+
+# ✅ Good: Single organization secret
+org/settings/secrets: GITHUB_TOKEN_PAT
+```
+
+### 4. Never Commit Secrets
+
+```bash
+# ❌ Bad
+git add .github/secrets.yaml
+git commit -m "Add secrets"
+
+# ✅ Good
+git add .github/workflows/
+git add .github/simili.yaml
+# secrets are in GitHub secrets, not in repo
+```
+
+### 5. Audit Token Usage
+
+1. Go to **Settings** → **Personal access tokens**
+2. Review last used date
+3. Revoke unused tokens
+4. Check for suspicious activity
+
+### 6. Use GitHub App for Large Orgs
+
+GitHub Apps are more secure than PATs:
+- Per-app tokens
+- Automatic token rotation
+- Repository-scoped installation
+- Better audit logging
+
+---
+
+## Troubleshooting
+
+### Issue: "Resource not accessible by integration"
+
+**Cause:** Token doesn't have permission for action
+
+**Solution:**
+1. Verify token has correct scopes (see above)
+2. If using PAT, regenerate with `repo` scope
+3. If using GitHub App, verify it's installed on target repos
+4. Check token hasn't expired
+
+### Issue: "Bad credentials"
+
+**Cause:** Token is invalid or expired
+
+**Solution:**
+1. Verify token value is correct (no extra spaces)
+2. Check token hasn't expired
+3. Regenerate token if expired
+4. Update secrets with new token
+
+### Issue: Workflow can't access target repository
+
+**Cause:** Token lacks permission for specific repo
+
+**Solution (PAT):**
+1. Check PAT has `repo` scope
+2. Check user who created PAT has access to target repo
+3. If target repo is new, try accessing it manually first
+
+**Solution (GitHub App):**
+1. Go to app **Installations**
+2. Verify target repo is listed
+3. If not, reinstall app on that repo
+
+### Issue: Can't post comments to other repos
+
+**Cause:** Wrong permission scope
+
+**Solution:**
+1. Verify token has write access to issues
+2. For PAT: ensure `repo` scope includes write
+3. For GitHub App: verify `Issues: Read & write` permission
+4. Test manually: try posting comment to verify permissions
+
+---
+
+## Permission Matrix Reference
+
+### What Each Token Type Can Do
+
+| Action | Default Token | PAT | GitHub App |
+|--------|---------------|-----|------------|
+| Read current repo | ✅ | ✅ | ✅ |
+| Write current repo | ✅ | ✅ | ✅ |
+| Read other repos | ❌ | ✅ | ✅* |
+| Write other repos | ❌ | ✅ | ✅* |
+| Read private repos | ❌ | ✅ | ✅* |
+| Cross-repo transfer | ❌ | ✅ | ✅* |
+
+*Only if app is installed on those repos
+
+### Scope Requirements by Action
+
+| Action | Required Scope |
+|--------|----------------|
+| Read issues | `repo` or `public_repo` |
+| Post comments | `issues: write` (part of `repo`) |
+| Create issues | `repo` |
+| Transfer issues | `repo` |
+| Close issues | `issues: write` (part of `repo`) |
+| Add labels | `issues: write` (part of `repo`) |
+
+---
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card
+    title="Choose Your Setup"
+    href="/getting-started/choose-your-setup"
+    icon="diagram-project"
+  >
+    Review which pattern needs which permissions
+  </Card>
+  <Card
+    title="Pattern Setup Guides"
+    href="/getting-started/patterns-overview"
+    icon="rocket"
+  >
+    Follow setup for your chosen pattern
+  </Card>
+  <Card
+    title="Configuration Reference"
+    href="/configuration/overview"
+    icon="sliders"
+  >
+    Learn configuration options
+  </Card>
+</CardGroup>
+
+---
+
+## FAQ
+
+### Q: Can I use the same PAT for multiple repositories?
+
+**A:** Yes! This is actually recommended for Pattern B. One PAT can be stored in organization secrets and used across all repositories.
+
+### Q: Do I need to rotate the default GITHUB_TOKEN?
+
+**A:** No. The default `GITHUB_TOKEN` is automatically managed by GitHub and rotated with each workflow run.
+
+### Q: Is it safe to use organization secrets?
+
+**A:** Yes. Organization secrets are encrypted and only accessible to selected repositories. Better than duplicating secrets in each repo.
+
+### Q: Can I revoke a PAT immediately?
+
+**A:** Yes. Go to **Settings** → **Personal access tokens** and click **Delete**. The token stops working immediately.
+
+### Q: What if my PAT expires?
+
+**A:** GitHub sends you a warning. Before it expires:
+1. Create a new PAT
+2. Add new token to secrets
+3. Test with new token
+4. Revoke old token
+
+### Q: Is GitHub App more secure than PAT?
+
+**A:** Generally yes, because:
+- Tokens are auto-rotated
+- Permissions are app-specific
+- Better audit trail
+- Can be limited to specific repos
+
+But it's more complex to set up.

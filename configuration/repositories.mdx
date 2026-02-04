@@ -5,7 +5,15 @@ description: Configure repositories for Simili Bot
 
 # Repository Configuration
 
-Configure which repositories Simili Bot manages and how to handle them.
+Configure which repositories Simili Bot manages. The behavior of the `repositories` field varies by deployment pattern.
+
+## Pattern-Specific Behavior
+
+| Pattern | Behavior |
+|---------|----------|
+| **Pattern A** | List only the current repository. |
+| **Pattern B** | List all target repositories in the control repo's config. |
+| **Pattern C** | Each repository lists only itself (usually inheriting shared defaults). |
 
 ## Basic Configuration
 
@@ -412,9 +420,9 @@ repositories:
     Setup automatic issue routing
   </Card>
   <Card
-    title="Multi-Repo Setup"
-    href="/guides/multi-repo-setup"
+    title="Multi-Repo Pattern Comparison"
+    href="/guides/multi-repo-comparison"
   >
-    Manage multiple repositories
+    Compare centralized vs distributed setups
   </Card>
 </CardGroup>

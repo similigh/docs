@@ -15,7 +15,7 @@
         "tab": "Getting Started",
         "groups": [
           {
-            "group": "Overview",
+            "group": "Introduction",
             "pages": [
               "index",
               "overview/features",
@@ -23,21 +23,46 @@
             ]
           },
           {
-            "group": "Setup",
+            "group": "Choose Your Path",
             "pages": [
-              "setup/installation",
-              "setup/quick-start",
-              "setup/github-action"
+              "getting-started/choose-your-setup",
+              "getting-started/patterns-overview"
             ]
           },
           {
-            "group": "Configuration",
+            "group": "Setup Guides",
+            "pages": [
+              "getting-started/single-repo-setup",
+              "getting-started/centralized-multi-repo-setup",
+              "getting-started/distributed-multi-repo-setup"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "Configuration",
+        "groups": [
+          {
+            "group": "Core Setup",
             "pages": [
               "configuration/overview",
               "configuration/qdrant",
-              "configuration/gemini",
+              "configuration/gemini"
+            ]
+          },
+          {
+            "group": "Advanced",
+            "pages": [
               "configuration/repositories",
-              "configuration/transfer-rules"
+              "configuration/transfer-rules",
+              "configuration/modular-config"
+            ]
+          },
+          {
+            "group": "Reference",
+            "pages": [
+              "configuration/permissions",
+              "setup/github-action-reference"
             ]
           }
         ]
@@ -56,9 +81,9 @@
             ]
           },
           {
-            "group": "Advanced",
+            "group": "Advanced Guides",
             "pages": [
-              "guides/multi-repo-setup",
+              "guides/multi-repo-comparison",
               "guides/config-inheritance",
               "guides/custom-workflows",
               "guides/deployment",
@@ -75,28 +100,6 @@
             "pages": [
               "reference/cli/process-command",
               "reference/cli/index-command"
-            ]
-          },
-          {
-            "group": "Configuration",
-            "pages": [
-              "reference/config-schema",
-              "reference/environment-variables"
-            ]
-          },
-          {
-            "group": "Pipeline Steps",
-            "pages": [
-              "reference/pipeline/steps",
-              "reference/pipeline/context"
-            ]
-          },
-          {
-            "group": "Integrations",
-            "pages": [
-              "reference/integrations/gemini",
-              "reference/integrations/qdrant",
-              "reference/integrations/github"
             ]
           }
         ]

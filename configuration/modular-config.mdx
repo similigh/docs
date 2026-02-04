@@ -1,0 +1,122 @@
+---
+title: "Modular Configuration"
+description: "Compose configurations using inheritance and shared bases"
+---
+
+# Modular Configuration
+
+Learn how to build a scalable configuration system for Simili Bot using modular pieces and inheritance.
+
+## The `extends` Keyword
+
+The core of modular configuration is the `extends` keyword. It allows one configuration file to inherit settings from another, typically hosted at a remote URL (like GitHub).
+
+```yaml
+extends: "https://raw.githubusercontent.com/org/config/main/base.yaml"
+
+# Local overrides
+defaults:
+  similarity_threshold: 0.85
+```
+
+## Pattern: Shared Defaults
+
+Create a single source of truth for your organization's Simili Bot policies.
+
+### 1. Create Base Config (`org-base.yaml`)
+
+```yaml
+qdrant:
+  url: "${QDRANT_URL}"
+  api_key: "${QDRANT_API_KEY}"
+  collection: "org-issues"
+
+embedding:
+  provider: "gemini"
+  api_key: "${GEMINI_API_KEY}"
+
+defaults:
+  similarity_threshold: 0.70
+  max_similar_to_show: 5
+  cross_repo_search: true
+```
+
+### 2. Use in Repositories
+
+Each repository only needs to specify itself:
+
+```yaml
+extends: "https://raw.githubusercontent.com/my-org/simili-config/main/org-base.yaml"
+
+repositories:
+  - org: "my-org"
+    repo: "backend"
+    description: "Backend services"
+```
+
+## Pattern: Environment Overrides
+
+Manage different settings for staging and production environments.
+
+### `base-staging.yaml`
+```yaml
+extends: "https://raw.githubusercontent.com/org/config/main/org-base.yaml"
+
+qdrant:
+  collection: "staging-issues"
+
+defaults:
+  similarity_threshold: 0.60 # Be more permissive in staging
+```
+
+### `base-prod.yaml`
+```yaml
+extends: "https://raw.githubusercontent.com/org/config/main/org-base.yaml"
+
+qdrant:
+  collection: "prod-issues"
+
+defaults:
+  similarity_threshold: 0.80 # Be stricter in production
+```
+
+## Pattern: Team-Specific Overrides
+
+Allow teams to define their own routing rules while sharing infrastructure settings.
+
+### `team-mobile.yaml`
+```yaml
+extends: "https://raw.githubusercontent.com/org/config/main/org-base.yaml"
+
+transfer:
+  rules:
+    - name: "Route to iOS"
+      pattern: "ios|swift|iphone"
+      target: "my-org/ios-app"
+    - name: "Route to Android"
+      pattern: "android|kotlin|pixel"
+      target: "my-org/android-app"
+```
+
+## Best Practices
+
+1. **Use Raw URLs**: Always extend from the "Raw" version of a file on GitHub.
+2. **Version Your Bases**: Use tags or branches in your URLs (e.g., `.../main/base.yaml` or `.../v1.0/base.yaml`) to prevent breaking changes.
+3. **Keep Repositories Local**: Don't put the `repositories` list in the base config unless you want every repo to monitor every other repo (Pattern B).
+4. **Environment Variables**: Use `${VAR_NAME}` syntax for secrets to keep your config files secure.
+
+## Troubleshooting
+
+- **URL Failures**: Ensure the `extends` URL is publicly accessible or accessible to the machine running the bot.
+- **Merge Order**: Local settings ALWAYS override extended settings.
+- **Circular References**: Avoid extending a file that eventually extends back to the current file.
+
+---
+
+<Card
+  title="Configuration Inheritance Guide"
+  href="/guides/config-inheritance"
+  icon="network-wired"
+>
+  Deep dive into technical merge rules and multi-level inheritance.
+</Card>
