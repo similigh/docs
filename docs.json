@@ -4,9 +4,9 @@
   "name": "Simili Bot",
   "description": "AI-powered GitHub issue management and semantic search",
   "colors": {
-    "primary": "#3b82f6",
+    "primary": "#ff7300",
     "light": "#ffffff",
-    "dark": "#0f172a"
+    "dark": "#000000"
   },
   "favicon": "/favicon.svg",
   "navigation": {
@@ -121,6 +121,20 @@
     "light": "/logo/light.svg",
     "dark": "/logo/dark.svg"
   },
+  "logoHeight": "80px",
+  "modeToggle": {
+    "default": "dark",
+    "isHidden": false
+  },
+  "topbarLinks": [
+    {
+      "name": "Support",
+      "url": "https://github.com/similigh/simili-bot/issues"
+    }
+  ],
+  "primaryTab": {
+    "name": "Documentation"
+  },
   "navbar": {
     "links": [
       {
@@ -148,6 +162,11 @@
     }
   },
   "appearance": {
-    "strict": false
+    "strict": false,
+    "darkMode": true
+  },
+  "layout": "sidenav",
+  "search": {
+    "prompt": "Search documentation..."
   }
 }

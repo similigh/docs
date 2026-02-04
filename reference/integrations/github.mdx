@@ -1,0 +1,144 @@
+---
+title: GitHub Integration
+description: GitHub API integration details
+---
+
+# GitHub Integration
+
+How Simili Bot integrates with GitHub for issue management.
+
+## Overview
+
+Simili Bot uses GitHub API to:
+- Fetch issue details and comments
+- Post analysis comments
+- Apply suggested labels
+- Transfer issues to other repositories
+- Handle authentication and permissions
+
+## API Methods
+
+**REST API** (v3)
+- Fetch issues and comments
+- Create/update comments
+- Add labels to issues
+- List repositories
+
+**GraphQL API**
+- Transfer issues across repositories
+- Complex queries
+- Batch operations
+
+## Authentication
+
+Two authentication modes:
+
+### Primary Token
+```bash
+GITHUB_TOKEN=ghp_xxxx
+```
+
+For normal operations (read/write issues, create comments).
+
+**Required Scopes:**
+- `repo` - Full control of repositories
+- `write:checks` - Write to pull requests
+
+### Elevated Token (Optional)
+```bash
+TRANSFER_TOKEN=ghp_xxxx
+```
+
+For transferring issues across repositories.
+
+**Required Scopes:**
+- `repo` - Full control of repositories
+
+## Capabilities
+
+**Issue Operations**
+- Fetch issue by number
+- Get issue comments (paginated)
+- Create comment with analysis
+- Apply multiple labels
+- Update issue state
+
+**Transfer**
+- Move issue to different repository
+- Prevent circular transfers
+- Update references
+
+**Metadata**
+- Extract labels
+- Get author information
+- Read issue state and history
+
+## Rate Limiting
+
+**REST API:**
+- 5,000 requests/hour (authenticated)
+- 60 requests/hour (unauthenticated)
+
+**GraphQL API:**
+- Rate points: 5,000 per hour
+- Complex queries cost more
+
+**Optimization:**
+- Batch operations
+- Cache results
+- Use appropriate endpoints
+
+## Security
+
+**Credential Management:**
+- Tokens stored as GitHub secrets
+- Never hardcoded in configuration
+- Rotated regularly
+
+**Permissions:**
+- Only request necessary scopes
+- Use elevated token only for transfers
+- Regular audit of token usage
+
+## Integration Points
+
+1. **Issue Fetching** - Get issue details
+2. **Comment Posting** - Post analysis results
+3. **Label Management** - Apply suggested labels
+4. **Issue Transfer** - Move to correct repo
+5. **Comment Reading** - Parse bot commands
+
+## Examples
+
+**Fetch Issue:**
+```
+GET /repos/owner/repo/issues/42
+Returns: Issue object with details
+```
+
+**Post Comment:**
+```
+POST /repos/owner/repo/issues/42/comments
+Body: Analysis comment text
+```
+
+**Add Labels:**
+```
+POST /repos/owner/repo/issues/42/labels
+Labels: ["bug", "urgent"]
+```
+
+**Transfer Issue:**
+```
+GraphQL mutation to move issue
+From: org/repo1
+To: org/repo2
+```
+
+## Next Steps
+
+<CardGroup cols={1}>
+  <Card title="GitHub Action Setup" href="/setup/github-action">
+    Configure GitHub Actions integration
+  </Card>
+</CardGroup>
