@@ -1,0 +1,66 @@
+---
+title: Quality Assessment
+description: Evaluate and improve issue descriptions
+---
+
+# Quality Assessment
+
+Simili Bot evaluates issue descriptions for completeness and clarity.
+
+## How It Works
+
+Simili Bot analyzes:
+- **Length & Detail** - Is description comprehensive?
+- **Structure** - Proper formatting and organization?
+- **Steps** - Reproduction steps included?
+- **Examples** - Code samples or logs provided?
+- **Context** - Environment and versions specified?
+
+## Example Output
+
+```
+## Quality Assessment
+Quality Score: 72/100
+
+Issues Found:
+- Missing reproduction steps
+- No error message provided
+- Environment not specified
+
+Suggestions:
+- Include step-by-step reproduction
+- Add the exact error message
+- Specify your OS and version
+```
+
+## Configuration
+
+Quality assessment is part of "issue-triage" workflow:
+
+```yaml
+- uses: similigh/simili-bot@v0.1.0
+  with:
+    workflow: "issue-triage"  # Includes quality check
+```
+
+## Scoring
+
+- **90-100**: Excellent - comprehensive and clear
+- **70-90**: Good - mostly complete
+- **50-70**: Fair - missing some details
+- **<50**: Poor - unclear and incomplete
+
+## Benefits
+
+✅ Encourage better issue reports
+✅ Identify incomplete descriptions
+✅ Provide actionable suggestions
+✅ Improve issue quality over time
+
+## Next Steps
+
+<CardGroup cols={1}>
+  <Card title="Auto Triage" href="/guides/auto-triage">
+    Automatically suggest labels for issues
+  </Card>
+</CardGroup>

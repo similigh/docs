@@ -1,0 +1,154 @@
+---
+title: Index Command
+description: CLI reference for the index command
+---
+
+# Index Command
+
+Bulk index GitHub issues to the vector database for semantic search.
+
+## Syntax
+
+```bash
+simili index [OPTIONS]
+```
+
+## Options
+
+| Option | Short | Type | Description | Default |
+|--------|-------|------|-------------|---------|
+| `--repo` | `-r` | string | Repository: `owner/name` | Required |
+| `--config` | `-c` | file | Configuration file | `simili.yaml` |
+| `--since` | `-s` | string | Index issues since (duration or ISO date) | 30d |
+| `--workers` | `-w` | number | Parallel workers | 5 |
+| `--help` | `-h` | bool | Show help message | - |
+
+## Examples
+
+### Index Last 30 Days
+
+```bash
+simili index --repo owner/repo --since 30d
+```
+
+### Index Since Specific Date
+
+```bash
+simili index --repo owner/repo --since 2024-01-01
+```
+
+### Parallel Processing
+
+Use more workers for faster indexing:
+```bash
+simili index --repo owner/repo --workers 10
+```
+
+### Index Everything
+
+```bash
+simili index --repo owner/repo --since 2020-01-01
+```
+
+## Output
+
+```
+Fetching issues from owner/repo...
+  Found 523 issues
+
+Creating Qdrant collection...
+  ✓ Collection created
+
+Indexing with 5 workers...
+  [====>----] 45% (235/523) - Speed: 12 issues/sec
+```
+
+## Time Format
+
+### Duration Strings
+- `1d` - 1 day ago
+- `7d` - 7 days ago
+- `30d` - 30 days ago
+- `1w` - 1 week ago
+- `1m` - 1 month ago
+
+### ISO 8601 Dates
+- `2024-01-01`
+- `2024-01-01T12:00:00Z`
+
+## Performance
+
+**Typical Speed:**
+- With 1 worker: ~2-3 issues/second
+- With 5 workers: ~10-15 issues/second
+- With 10 workers: ~20-25 issues/second
+
+**Depends on:**
+- Issue complexity
+- Comment count
+- API response times
+- Network latency
+
+## Process
+
+For each issue:
+1. Fetch issue details
+2. Fetch all comments
+3. Combine title + body + comments
+4. Split into chunks (recursive character splitter)
+5. Generate embeddings for each chunk
+6. Upsert to Qdrant with metadata
+
+## Configuration
+
+Needs valid configuration with:
+- Qdrant connection details
+- Gemini API key
+- Target repository
+
+See [Configuration Overview](/configuration/overview).
+
+## Tips
+
+1. **Start with small batch**
+   ```bash
+   simili index --repo owner/repo --since 7d
+   ```
+
+2. **Use multiple workers for large repos**
+   ```bash
+   simili index --repo owner/repo --workers 10
+   ```
+
+3. **Run during off-hours** to avoid rate limits
+
+4. **Check progress** - output updates regularly
+
+## Troubleshooting
+
+### Rate Limited
+
+```
+Error: 429 Too Many Requests
+```
+
+Reduce worker count:
+```bash
+simili index --repo owner/repo --workers 2
+```
+
+### Out of Memory
+
+Reduce workers or process in batches.
+
+### Collection Already Exists
+
+First index updates existing collection (safe to re-run).
+
+## Next Steps
+
+<CardGroup cols={1}>
+  <Card title="Process Command" href="/reference/cli/process-command">
+    Process individual issues
+  </Card>
+</CardGroup>

@@ -1,0 +1,60 @@
+---
+title: Process Command
+description: CLI reference for the process command
+---
+
+# Process Command
+
+Process individual GitHub issues with Simili Bot analysis.
+
+## Syntax
+
+```bash
+simili process [OPTIONS]
+```
+
+## Options
+
+| Option | Short | Type | Description | Default |
+|--------|-------|------|-------------|---------|
+| `--issue` | `-i` | file | Path to issue JSON file | - |
+| `--config` | `-c` | file | Path to configuration file | `simili.yaml` |
+| `--dry-run` | | bool | Run without posting to GitHub | false |
+| `--workflow` | `-w` | string | Workflow preset name | `issue-triage` |
+| `--help` | `-h` | bool | Show help message | - |
+
+## Examples
+
+### Basic Processing
+
+Process single issue:
+```bash
+simili process --issue event.json --config simili.yaml
+```
+
+### Dry-Run (Safe Testing)
+
+Test without posting to GitHub:
+```bash
+simili process --issue event.json --config simili.yaml --dry-run
+```
+
+### Custom Workflow
+
+Use different analysis pipeline:
+```bash
+simili process --issue event.json --workflow similarity-only
+```
+
+Available workflows:
+- `issue-triage` - Full analysis (default)
+- `similarity-only` - Search only
+- `index-only` - Indexing only
+
+## Next Steps
+
+<CardGroup cols={1}>
+  <Card title="Index Command" href="/reference/cli/index-command">
+    Bulk index issues
+  </Card>
+</CardGroup>

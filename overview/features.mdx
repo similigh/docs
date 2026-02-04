@@ -1,0 +1,254 @@
+---
+title: Features
+description: Explore all the capabilities of Simili Bot v0.1.0
+---
+
+# Features Overview
+
+Simili Bot provides a comprehensive suite of features for intelligent GitHub issue management.
+
+## Semantic Search
+
+Find related issues across your repositories using AI-powered semantic embeddings.
+
+**How it works:**
+- Issues are converted into 768-dimensional vectors using Google's text-embedding-004 model
+- Similarity search queries the Qdrant vector database
+- Results are ranked by semantic similarity score
+
+**Benefits:**
+- Discover related issues that use different terminology
+- Prevent duplicate discussions scattered across conversations
+- Build comprehensive issue context before implementation
+
+**Configuration:**
+```yaml
+defaults:
+  similarity_threshold: 0.70
+  max_similar_to_show: 5
+  cross_repo_search: true
+```
+
+## Duplicate Detection
+
+Automatically identify when a new issue duplicates an existing one using AI analysis.
+
+**Features:**
+- Analyzes similar issues using LLM to determine if they're duplicates
+- Returns confidence scores (0.0-1.0)
+- Provides detailed reasoning for each duplicate assessment
+- Comments on issues with findings
+
+**Example Output:**
+```
+This issue appears to be related to #123.
+
+Duplicate Confidence: 87%
+Analysis: Both issues describe the same authentication timeout
+problem in the login flow with identical error messages.
+```
+
+## Intelligent Routing
+
+Automatically transfer issues to the correct repository based on content analysis.
+
+**Two Modes:**
+
+### 1. Rule-Based Routing
+Match issues against explicit patterns:
+- Label-based rules (all/any)
+- Title/body keyword matching
+- Author-based routing
+- Priority-ordered evaluation
+
+### 2. LLM-Based Routing
+Use AI to understand issue content:
+- Analyzes issue against repository descriptions
+- Semantic understanding of domain
+- Contextual routing decisions
+- Prevents loops with blocked target tracking
+
+**Configuration:**
+```yaml
+transfer:
+  enabled: true
+  llm_routing_enabled: true
+  rules:
+    - name: "Route to docs"
+      priority: 10
+      target: "org/docs-repo"
+      title_contains: ["documentation", "docs"]
+```
+
+## Quality Assessment
+
+Evaluate issue descriptions for completeness and clarity.
+
+**Metrics Evaluated:**
+- Description length and detail
+- Use of formatting and structure
+- Presence of reproduction steps
+- Code examples or logs
+- Expected vs actual behavior
+
+**Output:**
+- Quality score (0.0-1.0)
+- List of quality issues found
+- Improvement suggestions
+- Example: "Add reproduction steps to improve clarity"
+
+## Auto Triage
+
+Automatically suggest appropriate labels based on issue content.
+
+**Capabilities:**
+- Analyzes issue title, description, and body
+- Suggests labels matching your repository taxonomy
+- Provides reasoning for suggestions
+- Works with existing label set
+
+**Example:**
+```
+Suggested Labels:
+- bug (confidence: 95%)
+- performance (confidence: 78%)
+- high-priority (confidence: 65%)
+```
+
+## Multi-Repository Support
+
+Manage issues across your entire organization with a single configuration.
+
+**Features:**
+- Central configuration with per-repository overrides
+- Cross-repository semantic search
+- Unified issue triage and analysis
+- Organization-wide duplicate detection
+- Coordinated routing across repos
+
+**Configuration:**
+```yaml
+repositories:
+  - org: "my-org"
+    repo: "backend"
+    enabled: true
+    description: "Backend services and APIs"
+
+  - org: "my-org"
+    repo: "frontend"
+    enabled: true
+    description: "Web UI and client applications"
+```
+
+## Configuration Inheritance
+
+Extend parent configurations from other repositories.
+
+**Use Cases:**
+- Organization-wide defaults
+- Team-specific overrides
+- Shared transfer rules
+
+**Example:**
+```yaml
+extends: "https://raw.githubusercontent.com/my-org/configs/main/base.yaml"
+
+# Override specific settings
+repositories:
+  - repo: "my-service"
+    enabled: true
+```
+
+## Modular Pipeline
+
+Customize issue processing with pluggable pipeline steps.
+
+**Available Steps (13 total):**
+1. **gatekeeper** - Repository enable/disable check
+2. **command_handler** - Process bot commands in comments
+3. **vectordb_prep** - Create collections as needed
+4. **similarity_search** - Find related issues
+5. **transfer_check** - Rule-based routing evaluation
+6. **llm_router** - AI-based routing
+7. **duplicate_detector** - Detect duplicates with confidence
+8. **quality_checker** - Assess issue quality
+9. **triage** - Suggest labels
+10. **response_builder** - Build comprehensive report
+11. **action_executor** - Post comments, transfer, apply labels
+12. **indexer** - Add issue to vector database
+13. **pending_action_scheduler** - Schedule delayed actions
+
+**Workflow Presets:**
+- `issue-triage` - Full pipeline (similarity, duplicates, triage, routing)
+- `similarity-only` - Semantic search only
+- `index-only` - Indexing to vector database
+
+## Bulk Indexing
+
+Index all issues in a repository to the vector database for semantic search.
+
+**Features:**
+- Process issues since a specific time
+- Parallel indexing with configurable workers
+- Automatic chunking of long issue text
+- Include comments in embeddings
+
+**Command:**
+```bash
+simili index --repo owner/name --since 30d --workers 5
+```
+
+## GitHub Integration
+
+Native GitHub integration for actions and information retrieval.
+
+**Capabilities:**
+- Fetch issue details and comments
+- Post analysis comments automatically
+- Apply suggested labels
+- Transfer issues to other repositories (GraphQL)
+- Support for both public and private repositories
+- Cross-repository operations with elevated permissions
+
+## Dry-Run Mode
+
+Test changes safely without posting to GitHub.
+
+**Use Cases:**
+- Preview what actions would be taken
+- Test configuration changes
+- Validate custom workflows
+- Debug issues
+
+**Command:**
+```bash
+simili process --issue event.json --config config.yaml --dry-run
+```
+
+## Environment Variables & Secrets
+
+Flexible credential management for deployment.
+
+**Supported Variables:**
+- `${VAR_NAME}` - Expanded in configuration files
+- Works with GitHub Actions secrets
+- Support for API keys and authentication tokens
+- No hardcoded credentials
+
+## Docker Support
+
+Deploy Simili Bot as a containerized application.
+
+**Features:**
+- Multi-stage build for minimal image size
+- Alpine Linux base
+- Includes CA certificates and git
+- GitHub Action integration included
+
+**Usage:**
+```bash
+docker run -e GEMINI_API_KEY=xxx \
+           -e QDRANT_API_KEY=yyy \
+           similigh/simili-bot:latest \
+           process --issue event.json --config config.yaml
+```

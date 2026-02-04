@@ -1,0 +1,404 @@
+---
+title: Qdrant Configuration
+description: Set up and configure Qdrant vector database
+---
+
+# Qdrant Configuration
+
+Configure Simili Bot to connect to your Qdrant vector database instance.
+
+## What is Qdrant?
+
+Qdrant is a vector database optimized for similarity search. Simili Bot uses it to:
+- Store issue embeddings (semantic vectors)
+- Search for similar issues
+- Retrieve related discussions quickly
+- Scale to thousands of issues
+
+## Setup Options
+
+<CardGroup cols={2}>
+  <Card title="Qdrant Cloud" href="#qdrant-cloud">
+    Managed service - easiest to get started
+  </Card>
+  <Card title="Self-Hosted" href="#self-hosted">
+    Docker container - full control
+  </Card>
+  <Card title="Local Development" href="#local-development">
+    Docker Compose - local testing
+  </Card>
+</CardGroup>
+
+## Qdrant Cloud
+
+### 1. Create Account
+
+1. Go to [Qdrant Cloud](https://cloud.qdrant.io)
+2. Sign up with your email or GitHub account
+3. Verify email
+
+### 2. Create Cluster
+
+1. Click **Create Cluster**
+2. Choose plan:
+   - **Free Tier**: 1GB storage, 512 vectors limit
+   - **Paid Tiers**: For production use
+3. Select region close to your location
+4. Click **Create**
+
+### 3. Get Connection Details
+
+After cluster creation:
+
+1. Click cluster name
+2. In **Connection** section, copy:
+   - **URL**: `https://xxxx-yyyy.qdrant.io:6333`
+   - **API Key**: Long string for authentication
+
+### 4. Configure Simili Bot
+
+Add to `simili.yaml`:
+
+```yaml
+qdrant:
+  url: "https://your-cluster.qdrant.io:6333"
+  api_key: "${QDRANT_API_KEY}"
+  collection: "issues"
+```
+
+Add GitHub Secret:
+1. Go to repository **Settings** → **Secrets and variables** → **Actions**
+2. Create secret `QDRANT_API_KEY` with your key
+3. Create secret `QDRANT_URL` with your URL
+
+### 5. Test Connection
+
+```bash
+# With CLI
+export QDRANT_URL="https://your-cluster.qdrant.io:6333"
+export QDRANT_API_KEY="your-key"
+simili process --issue test.json --config simili.yaml --dry-run
+```
+
+## Self-Hosted
+
+### Docker Container
+
+Run Qdrant in Docker:
+
+```bash
+docker run -p 6333:6333 \
+  -v qdrant_storage:/qdrant/storage:z \
+  qdrant/qdrant:latest
+```
+
+Access at: `http://localhost:6333`
+
+**For remote access**, use reverse proxy or expose with caution:
+
+```bash
+docker run -p 6333:6333 \
+  -e QDRANT_API_KEY="your-secure-key" \
+  -v qdrant_storage:/qdrant/storage:z \
+  qdrant/qdrant:latest
+```
+
+### Configuration
+
+```yaml
+qdrant:
+  url: "http://localhost:6333"  # Use http for local
+  api_key: "your-secure-key"
+  collection: "issues"
+  tls: false  # Disable TLS for local
+```
+
+### Data Persistence
+
+Store data outside container:
+
+```bash
+# Create volume
+docker volume create qdrant_storage
+
+# Run with persistent volume
+docker run -p 6333:6333 \
+  -v qdrant_storage:/qdrant/storage:z \
+  qdrant/qdrant:latest
+```
+
+Data persists even if container is deleted.
+
+## Local Development
+
+### Docker Compose
+
+Create `docker-compose.yml`:
+
+```yaml
+version: '3.8'
+
+services:
+  qdrant:
+    image: qdrant/qdrant:latest
+    ports:
+      - "6333:6333"
+    environment:
+      QDRANT_API_KEY: "local-dev-key"
+    volumes:
+      - qdrant_storage:/qdrant/storage
+    healthcheck:
+      test: ["CMD", "curl", "http://localhost:6333/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  qdrant_storage:
+```
+
+Start with:
+
+```bash
+docker compose up
+```
+
+Access at: `http://localhost:6333`
+
+### Configuration
+
+```yaml
+qdrant:
+  url: "http://localhost:6333"
+  api_key: "local-dev-key"
+  collection: "issues"
+  tls: false
+```
+
+## Configuration Reference
+
+### Connection Settings
+
+```yaml
+qdrant:
+  url: "https://cluster.qdrant.io:6333"
+  api_key: "${QDRANT_API_KEY}"
+  collection: "issues"
+  tls: true
+  timeout: 30
+  max_retries: 3
+```
+
+| Property | Type | Description | Default | Required |
+|----------|------|-------------|---------|----------|
+| `url` | string | Qdrant instance URL with port | - | Yes |
+| `api_key` | string | Authentication key | - | Yes |
+| `collection` | string | Collection name for vectors | - | Yes |
+| `tls` | boolean | Use HTTPS/TLS connection | true | No |
+| `timeout` | number | Request timeout (seconds) | 30 | No |
+| `max_retries` | number | Retry attempts on failure | 3 | No |
+
+### Collection Management
+
+Simili Bot automatically creates collections if needed.
+
+**Default settings:**
+- Vector size: 768 (matches text-embedding-004)
+- Distance metric: Cosine similarity
+- Payload: Issue metadata
+
+**Manual creation** (if needed):
+
+```bash
+curl -X PUT "http://localhost:6333/collections/issues" \
+  -H "Content-Type: application/json" \
+  -H "api-key: your-api-key" \
+  -d '{
+    "vectors": {
+      "size": 768,
+      "distance": "Cosine"
+    }
+  }'
+```
+
+## Common Configurations
+
+### Qdrant Cloud Production
+
+```yaml
+qdrant:
+  url: "https://your-prod-cluster.qdrant.io:6333"
+  api_key: "${QDRANT_PROD_API_KEY}"
+  collection: "production-issues"
+  tls: true
+  timeout: 60
+  max_retries: 5
+```
+
+### Local Development
+
+```yaml
+qdrant:
+  url: "http://localhost:6333"
+  api_key: "dev-key"
+  collection: "dev-issues"
+  tls: false
+  timeout: 10
+```
+
+### Staging Cluster
+
+```yaml
+qdrant:
+  url: "https://staging-cluster.qdrant.io:6333"
+  api_key: "${QDRANT_STAGING_KEY}"
+  collection: "staging-issues"
+  tls: true
+  timeout: 30
+```
+
+## Troubleshooting
+
+### Connection Refused
+
+**Error:** `connection refused`
+
+**Solutions:**
+- Verify Qdrant is running
+- Check URL format (include port 6333)
+- For cloud: verify IP whitelist allows your connection
+- Check firewall settings
+
+### Authentication Failed
+
+**Error:** `api key not found` or `unauthorized`
+
+**Solutions:**
+- Verify API key is correct
+- Check key hasn't been rotated
+- Ensure key is passed in `api_key` field
+- Try regenerating key in Qdrant dashboard
+
+### Timeout Errors
+
+**Error:** `i/o timeout` or `context deadline exceeded`
+
+**Solutions:**
+- Increase `timeout` value in configuration
+- Check network latency to Qdrant
+- For cloud clusters, use regional endpoint
+- Reduce query complexity
+
+### Collection Not Found
+
+**Error:** `collection not found`
+
+**Solutions:**
+- Simili Bot creates collection automatically - restart process
+- Verify collection name in config matches
+- Check you have API permissions to create collections
+
+### Out of Storage
+
+**Error:** `collection is read only`
+
+**Solutions:**
+- Qdrant Cloud: Upgrade plan to more storage
+- Self-hosted: Expand volume or add more storage
+- Reduce `max_similar_to_show` value
+- Implement issue retention policy
+
+## Performance Tuning
+
+### Optimize Search Speed
+
+Increase `timeout` for large collections:
+
+```yaml
+qdrant:
+  timeout: 60
+```
+
+### Reduce Memory Usage
+
+Limit vector dimensions (trade accuracy for memory):
+
+```yaml
+embedding:
+  dimensions: 384  # Smaller vectors
+```
+
+### Parallel Processing
+
+For bulk indexing, use more workers:
+
+```bash
+simili index --repo owner/repo --since 30d --workers 10
+```
+
+## Monitoring
+
+### Check Health
+
+**Cloud Dashboard:**
+1. Go to [Qdrant Cloud](https://cloud.qdrant.io)
+2. View storage usage and metrics
+
+**Local via API:**
+```bash
+curl http://localhost:6333/health
+```
+
+Expected response:
+```json
+{
+  "title": "Qdrant",
+  "version": "x.x.x"
+}
+```
+
+### View Collections
+
+```bash
+curl -H "api-key: YOUR_KEY" \
+  https://your-cluster.qdrant.io:6333/collections
+```
+
+### Check Point Count
+
+```bash
+curl -H "api-key: YOUR_KEY" \
+  https://your-cluster.qdrant.io:6333/collections/issues
+```
+
+## Cost Optimization
+
+**Qdrant Cloud Pricing:**
+- Free: 1GB storage
+- Paid: Per GB and per month
+- Storage: ~1-2KB per issue vector
+
+**Estimate:** 10,000 issues ≈ 10-20MB storage
+
+**Ways to reduce costs:**
+- Clean up old closed issues periodically
+- Use smaller vector dimensions (lower accuracy trade-off)
+- Consolidate multiple projects into one collection
+- Implement archival strategy
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card
+    title="Gemini Setup"
+    href="/configuration/gemini"
+  >
+    Configure AI engine
+  </Card>
+  <Card
+    title="Configuration Overview"
+    href="/configuration/overview"
+  >
+    View all configuration options
+  </Card>
+</CardGroup>

@@ -1,0 +1,87 @@
+---
+title: Environment Variables
+description: Supported environment variables
+---
+
+# Environment Variables
+
+Reference for all environment variables used by Simili Bot.
+
+## Required
+
+### QDRANT_URL
+Vector database URL.
+
+```bash
+export QDRANT_URL="https://your-cluster.qdrant.io:6333"
+```
+
+### QDRANT_API_KEY
+Vector database API key.
+
+```bash
+export QDRANT_API_KEY="your-api-key"
+```
+
+### GEMINI_API_KEY
+Google Gemini API key.
+
+```bash
+export GEMINI_API_KEY="your-api-key"
+```
+
+## Optional
+
+### GITHUB_TOKEN
+GitHub personal access token for API calls.
+
+```bash
+export GITHUB_TOKEN="ghp_xxxxx"
+```
+
+Required scopes: `repo`, `write:checks`
+
+### TRANSFER_TOKEN
+Elevated GitHub token for cross-repo transfers.
+
+```bash
+export TRANSFER_TOKEN="ghp_xxxxx"
+```
+
+## Configuration Variable Expansion
+
+Use variables in `simili.yaml`:
+
+```yaml
+qdrant:
+  url: "${QDRANT_URL}"
+  api_key: "${QDRANT_API_KEY}"
+
+embedding:
+  api_key: "${GEMINI_API_KEY}"
+```
+
+Simili Bot expands `${VARIABLE_NAME}` from environment at runtime.
+
+## GitHub Actions
+
+Set secrets in repository:
+
+```yaml
+env:
+  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  QDRANT_URL: ${{ secrets.QDRANT_URL }}
+  QDRANT_API_KEY: ${{ secrets.QDRANT_API_KEY }}
+  GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+```
+
+## Docker
+
+Pass variables with `-e`:
+
+```bash
+docker run -e QDRANT_URL="..." \
+           -e QDRANT_API_KEY="..." \
+           -e GEMINI_API_KEY="..." \
+           similigh/simili-bot:latest
+```

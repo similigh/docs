@@ -1,0 +1,70 @@
+---
+title: Duplicate Detection
+description: Automatically identify duplicate issues
+---
+
+# Duplicate Detection
+
+Simili Bot uses AI to automatically identify when a new issue is a duplicate of an existing one.
+
+## How It Works
+
+1. **Find Similar Issues** - Use semantic search to find related issues
+2. **Analyze with AI** - Use Gemini LLM to determine if truly duplicates
+3. **Calculate Confidence** - Return confidence score (0.0-1.0)
+4. **Post Comment** - Notify about duplicates with reasoning
+
+## Example
+
+**New Issue: "Can't log in with email"**
+
+Simili Bot finds similar issues and analyzes:
+- #456: "Email login broken" (94% similarity, 87% duplicate confidence)
+- #123: "Authentication issues" (88% similarity, 76% duplicate confidence)
+
+Posts comment:
+```
+🔍 Duplicate Analysis
+
+This issue appears to be a duplicate of #456:
+
+Duplicate Confidence: 87%
+Both issues describe email authentication failures with identical symptoms.
+
+Suggested Action: Close as duplicate and reference #456
+```
+
+## Configuration
+
+Control duplicate detection via workflow selection:
+
+```yaml
+# In workflow
+- uses: similigh/simili-bot@v0.1.0
+  with:
+    workflow: "issue-triage"  # Includes duplicate detection
+    # or
+    workflow: "similarity-only"  # Skip duplicate detection
+```
+
+## Confidence Scores
+
+- **90-100%**: Very likely duplicate
+- **75-90%**: Probably duplicate
+- **50-75%**: Possibly related
+- **<50%**: Not a duplicate
+
+## Benefits
+
+✅ Prevent scattered discussions
+✅ Consolidate related issues
+✅ Reduce duplicate work
+✅ Improve issue tracking
+
+## Next Steps
+
+<CardGroup cols={1}>
+  <Card title="Semantic Search" href="/guides/semantic-search">
+    How semantic search powers duplicate detection
+  </Card>
+</CardGroup>

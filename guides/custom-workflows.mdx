@@ -1,0 +1,117 @@
+---
+title: Custom Workflows
+description: Create custom pipeline workflows
+---
+
+# Custom Workflows
+
+Create custom workflows by selecting which pipeline steps to run.
+
+## Pipeline Steps
+
+Simili Bot has 13 modular steps you can mix and match:
+
+1. **gatekeeper** - Check if repo is enabled
+2. **command_handler** - Process bot commands
+3. **vectordb_prep** - Create collections
+4. **similarity_search** - Find related issues
+5. **transfer_check** - Rule-based routing
+6. **llm_router** - AI routing
+7. **duplicate_detector** - Identify duplicates
+8. **quality_checker** - Assess quality
+9. **triage** - Suggest labels
+10. **response_builder** - Build comment
+11. **action_executor** - Post to GitHub
+12. **indexer** - Add to vector DB
+13. **pending_action_scheduler** - Schedule actions
+
+## Preset Workflows
+
+Use built-in presets:
+
+```bash
+simili process --workflow issue-triage    # Full pipeline
+simili process --workflow similarity-only # Search only
+simili process --workflow index-only      # Indexing only
+```
+
+Or in GitHub Actions:
+```yaml
+- uses: similigh/simili-bot@v0.1.0
+  with:
+    workflow: "issue-triage"
+```
+
+## Workflow Presets
+
+### issue-triage (Default)
+Complete issue analysis pipeline:
+- Find similar issues
+- Check for duplicates
+- Assess quality
+- Suggest labels
+- Route if configured
+
+### similarity-only
+Semantic search only:
+- Find related issues
+- No AI analysis
+- Fast and lightweight
+
+### index-only
+Indexing to vector database:
+- Add issues to Qdrant
+- No analysis or comments
+
+## Custom Workflows
+
+Define custom workflows in configuration (future feature):
+
+```yaml
+# Planned: Custom workflow support
+workflows:
+  fast-only:
+    steps:
+      - gatekeeper
+      - vectordb_prep
+      - similarity_search
+      - response_builder
+      - action_executor
+
+  full-analysis:
+    steps:
+      - gatekeeper
+      - command_handler
+      - vectordb_prep
+      - similarity_search
+      - transfer_check
+      - llm_router
+      - duplicate_detector
+      - quality_checker
+      - triage
+      - response_builder
+      - action_executor
+      - indexer
+```
+
+## Tips for Efficiency
+
+**Reduce API Calls:**
+- Use `similarity-only` when you don't need AI analysis
+- Disable unnecessary steps
+
+**Improve Speed:**
+- Skip steps you don't need
+- Use dry-run for testing
+
+**Optimize Costs:**
+- Every Gemini API call has cost
+- Use lightweight workflows for high-volume repos
+
+## Next Steps
+
+<CardGroup cols={1}>
+  <Card title="Architecture Overview" href="/overview/architecture">
+    Understand pipeline architecture
+  </Card>
+</CardGroup>

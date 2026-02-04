@@ -1,97 +1,85 @@
 ---
-title: "Introduction"
-description: "Welcome to the new home for your documentation"
+title: "Simili Bot"
+description: "AI-powered GitHub issue management and semantic search"
 ---
 
-## Setting up
+# Welcome to Simili Bot
 
-Get your documentation site up and running in minutes.
+Simili Bot (v0.1.0) is an intelligent GitHub issue management system powered by AI and semantic search. It helps maintain high-quality issue tracking by automatically detecting duplicates, routing issues to correct repositories, assessing issue quality, and intelligently triaging problems.
+
+## What is Simili Bot?
+
+Simili Bot is a comprehensive solution for managing issues across GitHub repositories using:
+
+- **Semantic Search**: Find related issues using AI-powered embeddings
+- **Duplicate Detection**: Automatically identify duplicate issues with confidence scores
+- **Intelligent Routing**: Transfer issues to the correct repository based on content and rules
+- **Quality Assessment**: Evaluate issue descriptions and provide improvement suggestions
+- **Auto Triage**: Suggest appropriate labels based on issue content
+- **Multi-Repository Support**: Manage issues across your entire organization
+
+## Key Features
+
+<Columns cols={2}>
+  <Card
+    title="Semantic Search"
+    icon="search"
+    href="/guides/semantic-search"
+  >
+    Find similar issues across repositories using AI embeddings
+  </Card>
+  <Card
+    title="Duplicate Detection"
+    icon="copy"
+    href="/guides/duplicate-detection"
+  >
+    Automatically identify and flag duplicate issues
+  </Card>
+  <Card
+    title="Smart Routing"
+    icon="share-nodes"
+    href="/guides/issue-routing"
+  >
+    Route issues to correct repositories automatically
+  </Card>
+  <Card
+    title="Quality Assessment"
+    icon="chart-line"
+    href="/guides/quality-assessment"
+  >
+    Evaluate and improve issue description quality
+  </Card>
+  <Card
+    title="Auto Triage"
+    icon="tag"
+    href="/guides/auto-triage"
+  >
+    Suggest labels based on issue content
+  </Card>
+  <Card
+    title="Multi-Repo"
+    icon="layer-group"
+    href="/guides/multi-repo-setup"
+  >
+    Manage issues across multiple repositories
+  </Card>
+</Columns>
+
+## Quick Start
 
 <Card
-  title="Start here"
+  title="Setup in 5 Minutes"
   icon="rocket"
-  href="/quickstart"
+  href="/setup/quick-start"
   horizontal
 >
-  Follow our three step quickstart guide.
+  Get Simili Bot running in your repository
 </Card>
 
-## Make it yours
+## Tech Stack
 
-Design a docs site that looks great and empowers your users.
-
-<Columns cols={2}>
-  <Card
-    title="Edit locally"
-    icon="pen-to-square"
-    href="/development"
-  >
-    Edit your docs locally and preview them in real time.
-  </Card>
-  <Card
-    title="Customize your site"
-    icon="palette"
-    href="/essentials/settings"
-  >
-    Customize the design and colors of your site to match your brand.
-  </Card>
-    <Card
-    title="Set up navigation"
-    icon="map"
-    href="/essentials/navigation"
-  >
-    Organize your docs to help users find what they need and succeed with your product.
-  </Card>
-  <Card
-    title="API documentation"
-    icon="terminal"
-    href="/api-reference/introduction"
-  >
-    Auto-generate API documentation from OpenAPI specifications.
-  </Card>
-</Columns>
-
-## Create beautiful pages
-
-Everything you need to create world-class documentation.
-
-<Columns cols={2}>
-  <Card
-    title="Write with MDX"
-    icon="pen-fancy"
-    href="/essentials/markdown"
-  >
-    Use MDX to style your docs pages.
-  </Card>
-  <Card
-    title="Code samples"
-    icon="code"
-    href="/essentials/code"
-  >
-    Add sample code to demonstrate how to use your product.
-  </Card>
-  <Card
-    title="Images"
-    icon="image"
-    href="/essentials/images"
-  >
-    Display images and other media.
-  </Card>
-  <Card
-    title="Reusable snippets"
-    icon="recycle"
-    href="/essentials/reusable-snippets"
-  >
-    Write once and reuse across your docs.
-  </Card>
-</Columns>
-
-## Need inspiration?
-
-<Card
-  title="See complete examples"
-  icon="stars"
-  href="https://mintlify.com/customers"
->
-  Browse our showcase of exceptional documentation sites.
-</Card>
+- **Language**: Go 1.24
+- **AI Engine**: Google Gemini (embeddings + LLM)
+- **Vector Database**: Qdrant
+- **GitHub Integration**: GitHub API v3 + GraphQL
+- **Deployment**: Docker + GitHub Actions

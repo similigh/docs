@@ -1,0 +1,361 @@
+---
+title: Semantic Search
+description: Find related issues using AI embeddings
+---
+
+# Semantic Search
+
+Simili Bot uses semantic search to find related issues across your repositories based on meaning, not just keywords.
+
+## How It Works
+
+**Traditional Search:**
+```
+Issue: "Login button doesn't work"
+Search: "login button"
+Result: Only issues with exact words match
+```
+
+**Semantic Search:**
+```
+Issue: "Can't authenticate with my credentials"
+Search: AI understands this is about login
+Result: Finds "Login page broken", "Auth not working", "Sign-in issues"
+```
+
+## The Process
+
+### 1. Embedding Generation
+
+When an issue is indexed, Simili Bot:
+- Reads issue title, description, and comments
+- Converts text to a 768-dimensional vector using Google's text-embedding-004 model
+- Stores vector in Qdrant database
+- Includes metadata (repo, issue number, author, labels)
+
+### 2. Similarity Search
+
+When a new issue arrives:
+- Generate embedding for the new issue
+- Query Qdrant for similar vectors
+- Return top N issues above similarity threshold
+- Sort by confidence score
+
+### 3. Display Results
+
+Simili Bot comments with related issues:
+
+```
+## Similar Issues Found
+- #45: Can't log in with username (91% similar)
+- #23: Authentication failing (87% similar)
+- #12: Password reset issues (72% similar)
+```
+
+## Configuration
+
+### Enable/Disable
+
+In your workflow or via `simili.yaml`:
+
+```yaml
+defaults:
+  similarity_threshold: 0.70      # Minimum confidence
+  max_similar_to_show: 5          # Maximum results
+  cross_repo_search: true         # Search across repos
+```
+
+### Threshold
+
+Higher threshold = fewer results, higher quality:
+
+```yaml
+# Conservative - only very similar
+similarity_threshold: 0.80
+
+# Moderate - good balance
+similarity_threshold: 0.70
+
+# Permissive - find loosely related
+similarity_threshold: 0.60
+```
+
+Typical values: 0.65-0.75
+
+### Maximum Results
+
+Limit number of suggestions:
+
+```yaml
+max_similar_to_show: 3   # Show top 3
+max_similar_to_show: 10  # Show top 10
+```
+
+## Use Cases
+
+### 1. Finding Duplicate Issues
+
+User opens issue: "Password reset not working"
+
+Similar issues found:
+- #234: Can't reset my password (95% similar)
+- #456: Password recovery is broken (91% similar)
+
+→ Mark as likely duplicate, link to existing issues
+
+### 2. Context for New Issues
+
+User opens: "API returns 500 error on login"
+
+Related issues:
+- #111: Server errors with auth (84% similar)
+- #222: Internal error messages (78% similar)
+
+→ Understand problem space, see existing discussions
+
+### 3. Pattern Recognition
+
+User opens: "Widget layout is broken on mobile"
+
+Related issues:
+- #555: Responsive design issues (86% similar)
+- #666: Mobile view not working (82% similar)
+- #777: Layout breaks on small screens (79% similar)
+
+→ Recognize pattern, consolidate discussions
+
+## Benefits
+
+✅ **Reduce Duplicates**
+- Find existing discussions even with different wording
+- Prevent scattered conversations about same problem
+
+✅ **Improve Context**
+- See related issues in one place
+- Understand scope of problems
+
+✅ **Faster Resolution**
+- Learn from similar past issues
+- Find existing solutions
+
+✅ **Better Organization**
+- Link related discussions
+- Consolidate knowledge
+
+## Examples
+
+### Example 1: Bug Report
+
+**New Issue:**
+```
+Title: Can't log in anymore
+Body: Started getting strange errors when I try to log in.
+      Not sure what changed.
+```
+
+**Similar Issues Found:**
+```
+- #456: Authentication errors after update (94%)
+- #123: Login broken for some users (88%)
+- #789: Sign in not working (81%)
+```
+
+**Action:** Flag as duplicate, link to #456
+
+### Example 2: Feature Request
+
+**New Issue:**
+```
+Title: Add dark mode
+Body: Would love a dark theme for night coding.
+```
+
+**Similar Issues Found:**
+```
+- #321: Dark theme support (92%)
+- #654: Night mode feature (87%)
+- #987: Dark mode UI (84%)
+```
+
+**Action:** Close as duplicate of #321
+
+### Example 3: General Question
+
+**New Issue:**
+```
+Title: How to use the API?
+Body: I'm new to the project. How do I get started?
+```
+
+**Similar Issues Found:**
+```
+- #111: API documentation (89%)
+- #222: Getting started guide (84%)
+- #333: Integration examples (79%)
+```
+
+**Action:** Post helpful links, point to documentation
+
+## Optimization
+
+### Get Better Results
+
+1. **Good Issue Descriptions**
+   - Clear, specific titles
+   - Detailed problem description
+   - Context and steps to reproduce
+
+2. **Index Everything**
+   - Bulk index all historical issues
+   - Helps AI learn your project's language
+   - More data = better matches
+
+3. **Tune Threshold**
+   - Start at 0.70
+   - Adjust based on results
+   - Too high: miss related issues
+   - Too low: too many false positives
+
+### For Large Projects
+
+```yaml
+defaults:
+  # Large codebases need different tuning
+  similarity_threshold: 0.65  # Slightly lower
+  max_similar_to_show: 10     # Show more context
+  cross_repo_search: true     # Use full scope
+```
+
+### For Small Projects
+
+```yaml
+defaults:
+  # Small projects: be more selective
+  similarity_threshold: 0.75  # Higher threshold
+  max_similar_to_show: 3      # Fewer results
+  cross_repo_search: false    # Single repo focus
+```
+
+## Vector Database
+
+Simili Bot uses Qdrant for efficient similarity search:
+
+**How queries work:**
+1. Convert new issue to vector (milliseconds)
+2. Query Qdrant for nearest vectors (milliseconds-seconds)
+3. Retrieve metadata for top matches
+4. Return formatted results
+
+**Performance:**
+- Usually completes in <1 second
+- Fast even with thousands of issues
+- Scales to millions of vectors
+
+## Limitations
+
+### What Semantic Search Can't Do
+
+- **Exact phrase matching** - Use GitHub search instead
+- **Code-level analysis** - Understands text, not code semantics
+- **Recent events** - Works best with indexed historical data
+- **Multilingual** - Optimized for English text
+
+### When Results May Be Poor
+
+- Very new issues (nothing to compare yet)
+- Unique niche topics (no similar discussions)
+- Poor issue descriptions (not enough context)
+- Technical jargon not in training data (sometimes)
+
+## Tips for Best Results
+
+### 1. Write Good Issue Titles
+
+```
+✅ Good: "Login button shows wrong error message"
+❌ Bad: "Button issue"
+
+✅ Good: "Database connection timeout on high load"
+❌ Bad: "Database problem"
+```
+
+### 2. Include Context
+
+```
+✅ Include: Steps to reproduce, expected vs actual, environment
+❌ Missing: "Something is broken"
+
+✅ Include: Error messages, logs, stack traces
+❌ Missing: "It doesn't work"
+```
+
+### 3. Use Consistent Terminology
+
+```
+✅ Consistent: "authentication", "login", "sign in"
+❌ Inconsistent: "auth", "login", "signin", "access"
+
+✅ Consistent: "API endpoint", "REST endpoint"
+❌ Inconsistent: "endpoint", "API", "route", "URL"
+```
+
+### 4. Index Historical Data
+
+Index all past issues for better context:
+
+```bash
+simili index --repo owner/repo --since 2020-01-01
+```
+
+More data = better similarity matches.
+
+## Monitoring
+
+### Check Search Quality
+
+**In logs, look for:**
+- Similarity scores (should be reasonable)
+- Number of matches found
+- Whether human judges them relevant
+
+**Questions to ask:**
+- Are results actually similar?
+- Do they help understand the issue?
+- False positives (irrelevant results)?
+
+### Adjust as Needed
+
+If results are poor:
+1. Lower threshold (find more) or raise (find less)
+2. Increase max_similar_to_show for context
+3. Improve issue descriptions
+4. Index more historical data
+
+## How It Compares
+
+| Feature | Semantic Search | Keyword Search | Full-Text |
+|---------|-----------------|---|-----------|
+| Find related issues | ✅ Excellent | ❌ Poor | ⚠️ Okay |
+| Find exact phrases | ❌ Poor | ✅ Excellent | ✅ Good |
+| Understand meaning | ✅ Excellent | ❌ No | ⚠️ Basic |
+| Speed | ⚠️ 0.5-1s | ✅ Fast | ✅ Fast |
+| Scalability | ✅ Scales well | ✅ Scales well | ⚠️ Limited |
+
+Use both together: semantic search for discovery, keyword search for precision.
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card
+    title="Duplicate Detection"
+    href="/guides/duplicate-detection"
+  >
+    Automatically identify duplicate issues
+  </Card>
+  <Card
+    title="Qdrant Setup"
+    href="/configuration/qdrant"
+  >
+    Configure your vector database
+  </Card>
+</CardGroup>

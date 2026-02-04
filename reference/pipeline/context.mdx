@@ -1,0 +1,130 @@
+---
+title: Pipeline Context
+description: How data flows through the pipeline
+---
+
+# Pipeline Context
+
+Understanding how data flows through Simili Bot's pipeline.
+
+## Context Object
+
+Single `Context` object carries data through all 13 steps:
+
+```go
+type Context struct {
+    Issue Issue
+    Config *Config
+    Result *Result
+    Metadata map[string]interface{}
+}
+```
+
+## Issue
+
+GitHub issue data:
+
+```go
+type Issue struct {
+    Org string
+    Repo string
+    Number int
+    Title string
+    Body string
+    State string  // "open" or "closed"
+    URL string
+    Labels []string
+    Author string
+    EventType string  // "issues" or "issue_comment"
+    CommentBody string
+    CommentAuthor string
+}
+```
+
+## Result
+
+Accumulates analysis results:
+
+```go
+type Result struct {
+    IssueNumber int
+    Skipped bool
+    SimilarFound []SimilarIssue
+    TransferTarget string
+    Transferred bool
+    CommentPosted bool
+    Indexed bool
+    SuggestedLabels []string
+    QualityScore float64
+    QualityIssues []string
+    IsDuplicate bool
+    DuplicateOf int
+    DuplicateConfidence float64
+    Errors []string
+}
+```
+
+## Metadata Map
+
+Step-to-step communication:
+
+```go
+Metadata["similar_issues"] = []Issue{...}
+Metadata["quality_analysis"] = QualityResult{...}
+Metadata["transfer_decision"] = TransferDecision{...}
+```
+
+Each step adds to this map for later steps to read.
+
+## Data Flow Example
+
+```
+Step 1: gatekeeper
+  → Result.Skipped = false (repo enabled)
+
+Step 4: similarity_search
+  → Metadata["similar_issues"] = [issue1, issue2, issue3]
+  → Result.SimilarFound = [...]
+
+Step 7: duplicate_detector
+  → Reads Metadata["similar_issues"]
+  → Result.IsDuplicate = true
+  → Result.DuplicateOf = 234
+  → Result.DuplicateConfidence = 0.87
+
+Step 10: response_builder
+  → Reads Result.SimilarFound
+  → Reads Result.IsDuplicate
+  → Reads Result.QualityScore
+  → Builds formatted comment text
+
+Step 11: action_executor
+  → Posts comment from Step 10
+  → Applies labels from Result.SuggestedLabels
+  → Transfers to Result.TransferTarget
+
+Step 13: Output
+  → Return populated Result
+```
+
+## Error Handling
+
+Errors accumulate, don't stop pipeline:
+
+```go
+// If step fails:
+if err != nil {
+    result.Errors = append(result.Errors, err.Error())
+    // Continue to next step
+}
+```
+
+All errors reported in final Result.
+
+## Next Steps
+
+<CardGroup cols={1}>
+  <Card title="Pipeline Steps" href="/reference/pipeline/steps">
+    Details on each of the 13 steps
+  </Card>
+</CardGroup>

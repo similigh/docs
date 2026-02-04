@@ -1,68 +1,102 @@
 {
   "$schema": "https://mintlify.com/docs.json",
   "theme": "maple",
-  "name": "Mint Starter Kit",
+  "name": "Simili Bot",
+  "description": "AI-powered GitHub issue management and semantic search",
   "colors": {
-    "primary": "#ff7300",
+    "primary": "#3b82f6",
     "light": "#ffffff",
-    "dark": "#231f20"
+    "dark": "#0f172a"
   },
   "favicon": "/favicon.svg",
   "navigation": {
     "tabs": [
       {
-        "tab": "Guides",
+        "tab": "Getting Started",
         "groups": [
           {
-            "group": "Getting started",
+            "group": "Overview",
             "pages": [
               "index",
-              "quickstart",
-              "development"
+              "overview/features",
+              "overview/architecture"
             ]
           },
           {
-            "group": "Customization",
+            "group": "Setup",
             "pages": [
-              "essentials/settings",
-              "essentials/navigation"
+              "setup/installation",
+              "setup/quick-start",
+              "setup/github-action"
             ]
           },
           {
-            "group": "Writing content",
+            "group": "Configuration",
             "pages": [
-              "essentials/markdown",
-              "essentials/code",
-              "essentials/images",
-              "essentials/reusable-snippets"
-            ]
-          },
-          {
-            "group": "AI tools",
-            "pages": [
-              "ai-tools/cursor",
-              "ai-tools/claude-code",
-              "ai-tools/windsurf"
+              "configuration/overview",
+              "configuration/qdrant",
+              "configuration/gemini",
+              "configuration/repositories",
+              "configuration/transfer-rules"
             ]
           }
         ]
       },
       {
-        "tab": "API reference",
+        "tab": "Guides",
         "groups": [
           {
-            "group": "API documentation",
+            "group": "Core Features",
             "pages": [
-              "api-reference/introduction"
+              "guides/semantic-search",
+              "guides/duplicate-detection",
+              "guides/issue-routing",
+              "guides/quality-assessment",
+              "guides/auto-triage"
             ]
           },
           {
-            "group": "Endpoint examples",
+            "group": "Advanced",
             "pages": [
-              "api-reference/endpoint/get",
-              "api-reference/endpoint/create",
-              "api-reference/endpoint/delete",
-              "api-reference/endpoint/webhook"
+              "guides/multi-repo-setup",
+              "guides/config-inheritance",
+              "guides/custom-workflows",
+              "guides/deployment",
+              "guides/troubleshooting"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "Reference",
+        "groups": [
+          {
+            "group": "CLI Reference",
+            "pages": [
+              "reference/cli/process-command",
+              "reference/cli/index-command"
+            ]
+          },
+          {
+            "group": "Configuration",
+            "pages": [
+              "reference/config-schema",
+              "reference/environment-variables"
+            ]
+          },
+          {
+            "group": "Pipeline Steps",
+            "pages": [
+              "reference/pipeline/steps",
+              "reference/pipeline/context"
+            ]
+          },
+          {
+            "group": "Integrations",
+            "pages": [
+              "reference/integrations/gemini",
+              "reference/integrations/qdrant",
+              "reference/integrations/github"
             ]
           }
         ]
@@ -71,34 +105,29 @@
     "global": {
       "anchors": [
         {
-          "anchor": "Documentation",
-          "href": "https://mintlify.com/docs",
-          "icon": "book-open-cover"
+          "anchor": "GitHub",
+          "href": "https://github.com/similigh/simili-bot",
+          "icon": "github"
         },
         {
-          "anchor": "Blog",
-          "href": "https://mintlify.com/blog",
-          "icon": "newspaper"
+          "anchor": "Issues",
+          "href": "https://github.com/similigh/simili-bot/issues",
+          "icon": "circle-alert"
         }
       ]
     }
   },
   "logo": {
     "light": "/logo/light.svg",
-    "dark": "/logo/light.svg"
+    "dark": "/logo/dark.svg"
   },
   "navbar": {
     "links": [
       {
-        "label": "Support",
-        "href": "mailto:hi@mintlify.com"
+        "label": "GitHub",
+        "href": "https://github.com/similigh/simili-bot"
       }
-    ],
-    "primary": {
-      "type": "button",
-      "label": "Dashboard",
-      "href": "https://dashboard.mintlify.com"
-    }
+    ]
   },
   "contextual": {
     "options": [
@@ -114,9 +143,8 @@
   },
   "footer": {
     "socials": {
-      "x": "https://x.com/mintlify",
-      "github": "https://github.com/mintlify",
-      "linkedin": "https://linkedin.com/company/mintlify"
+      "github": "https://github.com/similigh/simili-bot",
+      "x": "https://x.com/similigh"
     }
   },
   "appearance": {

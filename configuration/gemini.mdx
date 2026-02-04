@@ -1,0 +1,284 @@
+---
+title: Gemini Configuration
+description: Set up Google Gemini for AI analysis
+---
+
+# Gemini Configuration
+
+Configure Google Gemini to power Simili Bot's AI capabilities.
+
+## What is Gemini?
+
+Google Gemini provides:
+- **Text Embeddings**: Convert issues to semantic vectors for similarity search
+- **LLM Analysis**: AI-powered duplicate detection, routing, triage, and quality assessment
+- **Fast Processing**: Cloud-based inference with minimal latency
+
+## Getting Started
+
+### 1. Get API Key
+
+1. Go to [Google AI Studio](https://aistudio.google.com/app/apikeys)
+2. Sign in with your Google account
+3. Click **Get API key**
+4. Choose or create a Google Cloud project
+5. Copy the generated API key
+
+### 2. Set Up GitHub Secret
+
+Store your API key securely:
+
+1. Go to repository **Settings** → **Secrets and variables** → **Actions**
+2. Create secret `GEMINI_API_KEY`
+3. Paste your API key
+
+### 3. Configure Simili Bot
+
+Add to `simili.yaml`:
+
+```yaml
+embedding:
+  provider: "gemini"
+  api_key: "${GEMINI_API_KEY}"
+  model: "text-embedding-004"
+  dimensions: 768
+```
+
+## Configuration Reference
+
+### Embedding Settings
+
+```yaml
+embedding:
+  provider: "gemini"
+  api_key: "${GEMINI_API_KEY}"
+  model: "text-embedding-004"
+  dimensions: 768
+  batch_size: 100
+```
+
+| Property | Type | Description | Default | Required |
+|----------|------|-------------|---------|----------|
+| `provider` | string | Must be "gemini" | - | Yes |
+| `api_key` | string | API key from Google AI Studio | - | Yes |
+| `model` | string | Embedding model to use | text-embedding-004 | No |
+| `dimensions` | number | Vector dimensions | 768 | No |
+| `batch_size` | number | Vectors per batch | 100 | No |
+
+### Available Models
+
+| Model | Dimensions | Use Case | Cost |
+|-------|-----------|----------|------|
+| `text-embedding-004` | 768 | General purpose (recommended) | $0.025 per million tokens |
+
+## Pricing
+
+Google Gemini offers a free tier:
+
+**Free Tier:**
+- Embeddings: 50 requests per minute
+- LLM: 15 requests per minute
+- Generous monthly quotas
+
+**Paid (if needed):**
+- Pay-as-you-go pricing
+- No monthly minimum
+- Bulk discounts available
+
+**Estimate for 1000 issues:**
+- Embeddings: ~$0.01-0.05
+- LLM analysis: $0.10-0.50 (depending on feature usage)
+
+## Common Issues & Solutions
+
+### API Key Not Valid
+
+**Error:** `Error 400: Invalid API key`
+
+**Solutions:**
+1. Verify key is correct from Google AI Studio
+2. Check key hasn't expired or been revoked
+3. Ensure no extra spaces in secret value
+4. Try regenerating key in Google AI Studio
+5. Verify project has API enabled
+
+### Rate Limited
+
+**Error:** `Error 429: Rate limit exceeded`
+
+**Solutions:**
+1. For free tier: Add delays between API calls
+2. Reduce batch size for embeddings
+3. Upgrade to paid plan if consistent usage
+4. Distribute processing over time
+
+### Model Not Found
+
+**Error:** `model 'text-embedding-004' not found`
+
+**Solutions:**
+1. Check model name spelling exactly
+2. Verify Google has enabled this model in your region
+3. Try default model by omitting `model` setting
+4. Check project has sufficient quota
+
+## Advanced Configuration
+
+### Batch Processing
+
+For bulk indexing, control batch size:
+
+```yaml
+embedding:
+  provider: "gemini"
+  api_key: "${GEMINI_API_KEY}"
+  batch_size: 50  # Smaller = more requests, less rate limiting
+```
+
+Smaller batches help with rate limiting but increase request count.
+
+### Custom Prompts
+
+LLM analysis uses templated prompts for:
+- Duplicate detection
+- Quality assessment
+- Issue routing
+- Label suggestions
+
+These are built-in and optimized for Gemini.
+
+## Integration Points
+
+Gemini is used for:
+
+### 1. Embeddings (for all issues)
+```
+Issue text → Embedding → Vector storage
+```
+
+### 2. Similarity Search (optional, if configured)
+```
+Find similar issues → Return top N
+```
+
+### 3. Duplicate Detection (optional)
+```
+Compare similar issues → AI analysis → Confidence score
+```
+
+### 4. Quality Assessment (optional)
+```
+Analyze issue description → Score → Suggestions
+```
+
+### 5. Auto Triage (optional)
+```
+Analyze issue → Suggest labels → Post to GitHub
+```
+
+### 6. Smart Routing (optional)
+```
+Analyze issue + repositories → Route decision
+```
+
+## Monitoring API Usage
+
+### In Google AI Studio
+
+1. Go to [Google AI Studio](https://aistudio.google.com/app/apikeys)
+2. Click your API key
+3. View usage and quotas
+
+### Common Metrics
+
+- Tokens processed
+- Requests made
+- Current month usage
+- Rate limit status
+
+## Cost Optimization
+
+### Reduce API Calls
+
+**Use workflow presets:**
+```bash
+# Only index, no AI analysis
+simili process --workflow index-only
+
+# Only semantic search, no LLM
+simili process --workflow similarity-only
+```
+
+**Disable features you don't need:**
+```yaml
+# In transfer config, disable LLM routing
+transfer:
+  llm_routing_enabled: false
+```
+
+### Batch Operations
+
+Index multiple issues together:
+```bash
+# Bulk index with 10 workers
+simili index --repo owner/repo --since 30d --workers 10
+```
+
+Batching reduces per-issue overhead.
+
+### Archive Old Issues
+
+Periodically clean up:
+1. Close resolved issues
+2. Archive old discussions
+3. Reduces embedding storage costs in Qdrant
+
+## Testing
+
+### Verify Configuration
+
+```bash
+export GEMINI_API_KEY="your-key"
+simili process --issue test.json --config simili.yaml --dry-run
+```
+
+Should output analysis without errors.
+
+### Test Dry-Run
+
+Try without posting to GitHub:
+
+```bash
+simili process --issue test.json --config simili.yaml --dry-run
+```
+
+### Monitor Logs
+
+Check output for:
+- Successful embeddings
+- API response times
+- Error messages
+- Rate limit warnings
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card
+    title="Qdrant Setup"
+    href="/configuration/qdrant"
+  >
+    Configure vector database
+  </Card>
+  <Card
+    title="Configuration Overview"
+    href="/configuration/overview"
+  >
+    View all configuration options
+  </Card>
+  <Card
+    title="Semantic Search Guide"
+    href="/guides/semantic-search"
+  >
+    Learn how semantic search works
+  </Card>
+</CardGroup>
