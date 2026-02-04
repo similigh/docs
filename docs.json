@@ -121,7 +121,7 @@
     "light": "/logo/light.svg",
     "dark": "/logo/dark.svg"
   },
-  "logoHeight": "80px",
+  "logoHeight": "100px",
   "modeToggle": {
     "default": "dark",
     "isHidden": false
