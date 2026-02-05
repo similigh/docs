@@ -1,0 +1,65 @@
+---
+title: Learn Command
+description: CLI reference for the learn command
+---
+
+# Learn Command
+
+Index repository documentation to enable hybrid routing.
+
+## Syntax
+
+```bash
+simili learn [OPTIONS]
+```
+
+## Options
+
+| Option | Type | Description | Default |
+|--------|------|-------------|---------|
+| `--org` | string | Organization name | Required |
+| `--repo` | string | Repository name | Required |
+| `--file` | string | File path (README.md, CONTRIBUTING.md, docs/*.md) | Required |
+| `--config` | file | Configuration file | `simili.yaml` |
+| `--dry-run` | bool | Preview without storing | false |
+
+## Examples
+
+### Index README
+
+```bash
+simili learn --org similigh --repo simili-bot --file README.md
+```
+
+### Index Multiple Files
+
+```bash
+simili learn --org similigh --repo simili-bot --file README.md
+simili learn --org similigh --repo simili-bot --file CONTRIBUTING.md
+simili learn --org similigh --repo simili-bot --file docs/architecture.md
+```
+
+### Dry-Run
+
+```bash
+simili learn --org similigh --repo simili-bot --file README.md --dry-run
+```
+
+## Configuration
+
+Enable in `simili.yaml`:
+
+```yaml
+transfer:
+  enabled: true
+  llm_routing_enabled: true
+  repo_collection: "simili_repos"
+```
+
+## Next Steps
+
+<CardGroup cols={1}>
+  <Card title="Issue Routing" href="/guides/issue-routing">
+    Learn about hybrid routing
+  </Card>
+</CardGroup>

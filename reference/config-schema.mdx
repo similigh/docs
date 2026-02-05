@@ -67,6 +67,9 @@ repositories:
 transfer:
   enabled: boolean                 # Enable/disable (default: false)
   llm_routing_enabled: boolean     # Use AI routing (default: false)
+  high_confidence: number          # Auto-transfer threshold (default: 0.9)
+  medium_confidence: number        # Suggestion threshold (default: 0.6)
+  repo_collection: string          # Repo docs collection (default: "simili_repos")
   rules: [TransferRule]            # Array of routing rules
 ```
 
