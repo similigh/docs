@@ -7,7 +7,7 @@ description: How data flows through the pipeline
 
 Understanding how data flows through Simili Bot's pipeline.
 
-## Context Object
+## Context object
 
 Single `Context` object carries data through all 13 steps:
 
@@ -64,7 +64,7 @@ type Result struct {
 }
 ```
 
-## Metadata Map
+## Metadata map
 
 Step-to-step communication:
 
@@ -76,7 +76,7 @@ Metadata["transfer_decision"] = TransferDecision{...}
 
 Each step adds to this map for later steps to read.
 
-## Data Flow Example
+## Data flow example
 
 ```
 Step 1: gatekeeper
@@ -107,7 +107,7 @@ Step 13: Output
   → Return populated Result
 ```
 
-## Error Handling
+## Error handling
 
 Errors accumulate, don't stop pipeline:
 
@@ -121,10 +121,10 @@ if err != nil {
 
 All errors reported in final Result.
 
-## Next Steps
+## Next steps
 
 <CardGroup cols={1}>
-  <Card title="Pipeline Steps" href="/reference/pipeline/steps">
+  <Card title="Pipeline steps" href="/reference/pipeline/steps">
     Details on each of the 13 steps
   </Card>
 </CardGroup>

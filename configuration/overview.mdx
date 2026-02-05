@@ -7,7 +7,7 @@ description: Configure Simili Bot v0.1.0
 
 Simili Bot is configured using a YAML file. Your configuration structure depends on your chosen deployment pattern.
 
-## Configuration by Pattern
+## Configuration by pattern
 
 Choose your setup guide to see pattern-specific configuration examples:
 
@@ -32,7 +32,7 @@ Choose your setup guide to see pattern-specific configuration examples:
   </Card>
 </CardGroup>
 
-## Configuration File Location
+## Configuration file location
 
 By default, Simili Bot looks for configuration in these locations:
 
@@ -50,7 +50,7 @@ By default, Simili Bot looks for configuration in these locations:
 
 3. **Current directory:** `simili.yaml` in working directory
 
-## Configuration Structure
+## Configuration structure
 
 A complete configuration file has these main sections:
 
@@ -88,9 +88,9 @@ transfer:
   rules: []
 ```
 
-## Section Breakdown
+## Section breakdown
 
-### Qdrant Configuration
+### Qdrant configuration
 
 Configure your vector database connection:
 
@@ -111,7 +111,7 @@ qdrant:
 | `tls` | boolean | Use TLS for connection | No (default: true) |
 | `timeout` | number | Request timeout in seconds | No (default: 30) |
 
-### Embedding Configuration
+### Embedding configuration
 
 Configure AI embeddings:
 
@@ -130,7 +130,7 @@ embedding:
 | `model` | string | Model name | No (default: text-embedding-004) |
 | `dimensions` | number | Vector dimensions | No (default: 768) |
 
-### Defaults Configuration
+### Defaults configuration
 
 Set default behavior for issue processing:
 
@@ -147,7 +147,7 @@ defaults:
 | `max_similar_to_show` | number | Max related issues to display | 5 |
 | `cross_repo_search` | boolean | Search across all repos | false |
 
-### Repositories Configuration
+### Repositories configuration
 
 List repositories to manage:
 
@@ -173,7 +173,7 @@ repositories:
 | `description` | string | Description for routing decisions | No |
 | `labels` | array | Associated labels | No |
 
-### Transfer Configuration
+### Transfer configuration
 
 Configure issue routing:
 
@@ -190,7 +190,7 @@ transfer:
 
 Details in [Transfer Rules](/configuration/transfer-rules).
 
-## Environment Variables
+## Environment variables
 
 Use environment variables for sensitive data:
 
@@ -218,7 +218,7 @@ env:
   GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
 ```
 
-## Configuration Inheritance
+## Configuration inheritance
 
 Extend configuration from a parent file:
 
@@ -240,9 +240,9 @@ Benefits:
 
 Parent configuration is fetched via HTTPS and merged.
 
-## Common Configurations
+## Common configurations
 
-### Single Repository
+### Single repository
 
 Manage one repository only:
 
@@ -268,7 +268,7 @@ repositories:
     description: "My project"
 ```
 
-### Organization with Multiple Repos
+### Organization with multiple repos
 
 ```yaml
 extends: "https://raw.githubusercontent.com/my-org/policies/main/base.yaml"
@@ -290,7 +290,7 @@ repositories:
     description: "DevOps and infrastructure"
 ```
 
-### Development vs Production
+### Development vs production
 
 **Development config** (.github/simili-dev.yaml):
 ```yaml
@@ -334,16 +334,16 @@ Error: Failed to parse configuration: yaml: line 5: mapping values are not allow
 Error: similarity_threshold must be between 0.0 and 1.0
 ```
 
-## Configuration Updates
+## Configuration updates
 
-### To Update Configuration
+### To update configuration
 
 1. Edit `simili.yaml`
 2. Commit and push to repository
 3. Next issue processed uses new configuration
 4. No restart required (GitHub Action runs with latest config)
 
-### Safe Testing
+### Safe testing
 
 Test changes before deploying:
 
@@ -366,13 +366,13 @@ Or in workflow:
 
 <CardGroup cols={2}>
   <Card
-    title="Qdrant Setup"
+    title="Qdrant setup"
     href="/configuration/qdrant"
   >
     Configure vector database
   </Card>
   <Card
-    title="Gemini Setup"
+    title="Gemini setup"
     href="/configuration/gemini"
   >
     Configure AI engine
@@ -384,7 +384,7 @@ Or in workflow:
     Configure multiple repos
   </Card>
   <Card
-    title="Transfer Rules"
+    title="Transfer rules"
     href="/configuration/transfer-rules"
   >
     Setup issue routing

@@ -14,12 +14,12 @@ This guide will help you set up Simili Bot for a single repository. This is the 
 
 ---
 
-## Setup Steps
+## Setup steps
 
 Follow these steps to enable AI-powered issue management.
 
 <Steps>
-  <Step title="Add Configuration">
+  <Step title="Add configuration">
     Create `.github/simili.yaml` in your repository root:
 
     ```yaml
@@ -38,13 +38,13 @@ Follow these steps to enable AI-powered issue management.
         enabled: true
     ```
   </Step>
-  <Step title="Store Secrets">
+  <Step title="Store secrets">
     Go to **Settings > Secrets and variables > Actions** in your GitHub repository and add:
     *   `QDRANT_API_KEY`
     *   `GEMINI_API_KEY`
     *   `QDRANT_URL` (optional, if not hardcoded in config)
   </Step>
-  <Step title="Create Workflow">
+  <Step title="Create workflow">
     Create `.github/workflows/simili-bot.yml` with the following content:
 
     ```yaml
@@ -89,6 +89,6 @@ Follow these steps to enable AI-powered issue management.
 ## Next Steps
 
 <CardGroup cols={2}>
-  <Card title="Configuration Overview" icon="gear" href="/configuration/overview" />
-  <Card title="Feature Guides" icon="book" href="/guides/semantic-search" />
+  <Card title="Configuration overview" icon="gear" href="/configuration/overview" />
+  <Card title="Feature guides" icon="book" href="/guides/semantic-search" />
 </CardGroup>

@@ -15,13 +15,13 @@ Set up Simili Bot with a central control repository that processes issues across
 
 ---
 
-## Setup Steps
+## Setup steps
 
 <Steps>
-  <Step title="Create Control Repository">
+  <Step title="Create control repository">
     Create a new private repository (e.g., `simili-bot-control`) to host your master configuration and workflows.
   </Step>
-  <Step title="Add Master Configuration">
+  <Step title="Add master configuration">
     Create `.github/simili.yaml` in the control repo:
 
     ```yaml
@@ -40,13 +40,13 @@ Set up Simili Bot with a central control repository that processes issues across
         repo: "frontend"
     ```
   </Step>
-  <Step title="Configure Authentication">
+  <Step title="Configure authentication">
     Pattern B requires elevated permissions. Add a Personal Access Token (PAT) with `repo` scope to your control repo secrets as `GITHUB_TOKEN_PAT`.
   </Step>
-  <Step title="Organization Secrets">
+  <Step title="Organization secrets">
     Add `QDRANT_URL`, `QDRANT_API_KEY`, and `GEMINI_API_KEY` to your organization-level secrets and grant access to the control repository.
   </Step>
-  <Step title="Create Workflow">
+  <Step title="Create workflow">
     Create `.github/workflows/simili-bot.yml` in the control repo:
 
     ```yaml
@@ -71,7 +71,7 @@ Set up Simili Bot with a central control repository that processes issues across
               GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
     ```
   </Step>
-  <Step title="Submit & Test">
+  <Step title="Submit & test">
     Go to the **Actions** tab in your control repo and manually trigger the workflow to ensure it can reach your target repositories.
   </Step>
 </Steps>
@@ -81,7 +81,7 @@ Set up Simili Bot with a central control repository that processes issues across
 ## Troubleshooting
 
 <AccordionGroup>
-  <Accordion title="Permission Denied error">
+  <Accordion title="Permission denied error">
     Ensure your PAT has the `repo` scope and is correctly added as a secret in the control repository.
   </Accordion>
   <Accordion title="Issues not being processed">
@@ -94,6 +94,6 @@ Set up Simili Bot with a central control repository that processes issues across
 ## Next Steps
 
 <CardGroup cols={2}>
-  <Card title="Permission Guide" icon="lock" href="/configuration/permissions" />
-  <Card title="Issue Routing" icon="share-nodes" href="/guides/issue-routing" />
+  <Card title="Permission guide" icon="lock" href="/configuration/permissions" />
+  <Card title="Issue routing" icon="share-nodes" href="/guides/issue-routing" />
 </CardGroup>

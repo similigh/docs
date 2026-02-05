@@ -14,9 +14,9 @@ Google Gemini provides:
 - **LLM Analysis**: AI-powered duplicate detection, routing, triage, and quality assessment
 - **Fast Processing**: Cloud-based inference with minimal latency
 
-## Getting Started
+## Getting started
 
-### 1. Get API Key
+### 1. Get API key
 
 1. Go to [Google AI Studio](https://aistudio.google.com/app/apikeys)
 2. Sign in with your Google account
@@ -24,7 +24,7 @@ Google Gemini provides:
 4. Choose or create a Google Cloud project
 5. Copy the generated API key
 
-### 2. Set Up GitHub Secret
+### 2. Set up GitHub secret
 
 Store your API key securely:
 
@@ -44,9 +44,9 @@ embedding:
   dimensions: 768
 ```
 
-## Configuration Reference
+## Configuration reference
 
-### Embedding Settings
+### Embedding settings
 
 ```yaml
 embedding:
@@ -65,7 +65,7 @@ embedding:
 | `dimensions` | number | Vector dimensions | 768 | No |
 | `batch_size` | number | Vectors per batch | 100 | No |
 
-### Available Models
+### Available models
 
 | Model | Dimensions | Use Case | Cost |
 |-------|-----------|----------|------|
@@ -89,9 +89,9 @@ Google Gemini offers a free tier:
 - Embeddings: ~$0.01-0.05
 - LLM analysis: $0.10-0.50 (depending on feature usage)
 
-## Common Issues & Solutions
+## Common issues & solutions
 
-### API Key Not Valid
+### API key not valid
 
 **Error:** `Error 400: Invalid API key`
 
@@ -102,7 +102,7 @@ Google Gemini offers a free tier:
 4. Try regenerating key in Google AI Studio
 5. Verify project has API enabled
 
-### Rate Limited
+### Rate limited
 
 **Error:** `Error 429: Rate limit exceeded`
 
@@ -112,7 +112,7 @@ Google Gemini offers a free tier:
 3. Upgrade to paid plan if consistent usage
 4. Distribute processing over time
 
-### Model Not Found
+### Model not found
 
 **Error:** `model 'text-embedding-004' not found`
 
@@ -122,9 +122,9 @@ Google Gemini offers a free tier:
 3. Try default model by omitting `model` setting
 4. Check project has sufficient quota
 
-## Advanced Configuration
+## Advanced configuration
 
-### Batch Processing
+### Batch processing
 
 For bulk indexing, control batch size:
 
@@ -137,7 +137,7 @@ embedding:
 
 Smaller batches help with rate limiting but increase request count.
 
-### Custom Prompts
+### Custom prompts
 
 LLM analysis uses templated prompts for:
 - Duplicate detection
@@ -147,7 +147,7 @@ LLM analysis uses templated prompts for:
 
 These are built-in and optimized for Gemini.
 
-## Integration Points
+## Integration points
 
 Gemini is used for:
 
@@ -156,32 +156,32 @@ Gemini is used for:
 Issue text → Embedding → Vector storage
 ```
 
-### 2. Similarity Search (optional, if configured)
+### 2. Similarity search (optional, if configured)
 ```
 Find similar issues → Return top N
 ```
 
-### 3. Duplicate Detection (optional)
+### 3. Duplicate detection (optional)
 ```
 Compare similar issues → AI analysis → Confidence score
 ```
 
-### 4. Quality Assessment (optional)
+### 4. Quality assessment (optional)
 ```
 Analyze issue description → Score → Suggestions
 ```
 
-### 5. Auto Triage (optional)
+### 5. Auto triage (optional)
 ```
 Analyze issue → Suggest labels → Post to GitHub
 ```
 
-### 6. Smart Routing (optional)
+### 6. Smart routing (optional)
 ```
 Analyze issue + repositories → Route decision
 ```
 
-## Monitoring API Usage
+## Monitoring API usage
 
 ### In Google AI Studio
 
@@ -189,16 +189,16 @@ Analyze issue + repositories → Route decision
 2. Click your API key
 3. View usage and quotas
 
-### Common Metrics
+### Common metrics
 
 - Tokens processed
 - Requests made
 - Current month usage
 - Rate limit status
 
-## Cost Optimization
+## Cost optimization
 
-### Reduce API Calls
+### Reduce API calls
 
 **Use workflow presets:**
 ```bash
@@ -216,7 +216,7 @@ transfer:
   llm_routing_enabled: false
 ```
 
-### Batch Operations
+### Batch operations
 
 Index multiple issues together:
 ```bash
@@ -226,7 +226,7 @@ simili index --repo owner/repo --since 30d --workers 10
 
 Batching reduces per-issue overhead.
 
-### Archive Old Issues
+### Archive old issues
 
 Periodically clean up:
 1. Close resolved issues
@@ -235,7 +235,7 @@ Periodically clean up:
 
 ## Testing
 
-### Verify Configuration
+### Verify configuration
 
 ```bash
 export GEMINI_API_KEY="your-key"
@@ -244,7 +244,7 @@ simili process --issue test.json --config simili.yaml --dry-run
 
 Should output analysis without errors.
 
-### Test Dry-Run
+### Test dry-run
 
 Try without posting to GitHub:
 
@@ -252,7 +252,7 @@ Try without posting to GitHub:
 simili process --issue test.json --config simili.yaml --dry-run
 ```
 
-### Monitor Logs
+### Monitor logs
 
 Check output for:
 - Successful embeddings
@@ -260,23 +260,23 @@ Check output for:
 - Error messages
 - Rate limit warnings
 
-## Next Steps
+## Next steps
 
 <CardGroup cols={2}>
   <Card
-    title="Qdrant Setup"
+    title="Qdrant setup"
     href="/configuration/qdrant"
   >
     Configure vector database
   </Card>
   <Card
-    title="Configuration Overview"
+    title="Configuration overview"
     href="/configuration/overview"
   >
     View all configuration options
   </Card>
   <Card
-    title="Semantic Search Guide"
+    title="Semantic search guide"
     href="/guides/semantic-search"
   >
     Learn how semantic search works

@@ -15,10 +15,10 @@ Set up Simili Bot across multiple repositories with each team managing their own
 
 ---
 
-## Setup Steps
+## Setup steps
 
 <Steps>
-  <Step title="Base Configuration (Optional)">
+  <Step title="Base configuration (optional)">
     Create a shared configuration repository (e.g., `simili-config`) with a `base-config.yaml` to store common settings like Qdrant URL and collection.
 
     ```yaml
@@ -29,10 +29,10 @@ Set up Simili Bot across multiple repositories with each team managing their own
       cross_repo_search: true
     ```
   </Step>
-  <Step title="Organization-Level Secrets">
+  <Step title="Organization-level secrets">
     Add `ORG_QDRANT_URL`, `ORG_QDRANT_API_KEY`, and `ORG_GEMINI_API_KEY` to your organization-level secrets so all repos can access the same knowledge base securely.
   </Step>
-  <Step title="Configure Repositories">
+  <Step title="Configure repositories">
     In each repository, create `.github/simili.yaml` extending the shared base:
 
     ```yaml
@@ -43,7 +43,7 @@ Set up Simili Bot across multiple repositories with each team managing their own
         description: "REST APIs for the backend service"
     ```
   </Step>
-  <Step title="Create Workflows">
+  <Step title="Create workflows">
     In each repository, create `.github/workflows/simili-bot.yml` using the organization secrets:
 
     ```yaml
@@ -56,7 +56,7 @@ Set up Simili Bot across multiple repositories with each team managing their own
           GEMINI_API_KEY: ${{ secrets.ORG_GEMINI_API_KEY }}
     ```
   </Step>
-  <Step title="Test Cross-Repo Search">
+  <Step title="Test cross-repo search">
     Open issues with similar topics across different repositories. Simili Bot should identify them as related, even across repository boundaries, providing a unified view of your organization's issues.
   </Step>
 </Steps>
@@ -79,6 +79,6 @@ Set up Simili Bot across multiple repositories with each team managing their own
 ## Next Steps
 
 <CardGroup cols={2}>
-  <Card title="Modular Configuration" icon="sliders" href="/configuration/modular-config" />
-  <Card title="Config Inheritance" icon="network-wired" href="/guides/config-inheritance" />
+  <Card title="Modular configuration" icon="sliders" href="/configuration/modular-config" />
+  <Card title="Config inheritance" icon="network-wired" href="/guides/config-inheritance" />
 </CardGroup>

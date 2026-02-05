@@ -7,7 +7,7 @@ description: Create custom pipeline workflows
 
 Create custom workflows by selecting which pipeline steps to run.
 
-## Pipeline Steps
+## Pipeline steps
 
 Simili Bot has 13 modular steps you can mix and match:
 
@@ -25,7 +25,7 @@ Simili Bot has 13 modular steps you can mix and match:
 12. **indexer** - Add to vector DB
 13. **pending_action_scheduler** - Schedule actions
 
-## Preset Workflows
+## Preset workflows
 
 Use built-in presets:
 
@@ -42,7 +42,7 @@ Or in GitHub Actions:
     workflow: "issue-triage"
 ```
 
-## Workflow Presets
+## Workflow presets
 
 ### issue-triage (Default)
 Complete issue analysis pipeline:
@@ -63,7 +63,7 @@ Indexing to vector database:
 - Add issues to Qdrant
 - No analysis or comments
 
-## Custom Workflows
+## Custom workflows
 
 Define custom workflows in configuration (future feature):
 
@@ -94,7 +94,7 @@ workflows:
       - indexer
 ```
 
-## Tips for Efficiency
+## Tips for efficiency
 
 **Reduce API Calls:**
 - Use `similarity-only` when you don't need AI analysis
@@ -108,10 +108,10 @@ workflows:
 - Every Gemini API call has cost
 - Use lightweight workflows for high-volume repos
 
-## Next Steps
+## Next steps
 
 <CardGroup cols={1}>
-  <Card title="Architecture Overview" href="/overview/architecture">
+  <Card title="Architecture overview" href="/overview/architecture">
     Understand pipeline architecture
   </Card>
 </CardGroup>

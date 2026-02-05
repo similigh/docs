@@ -7,25 +7,25 @@ description: "Understand the different ways to deploy Simili Bot"
 
 Simili Bot is designed to adapt to your organization's workflow. Whether you're managing a single project or a complex microservices architecture, there's a pattern that fits.
 
-## The Three Patterns
+## The three patterns
 
 Choose a pattern based on your repository structure and how much autonomy your individual teams require.
 
-### Pattern A: Single Repository
+### Pattern A: Single repository
 The simplest setup, where the bot lives and runs entirely within one repository.
 
 *   **Best For**: Small teams, standalone projects.
 *   **Primary Benefit**: Zero external dependencies and fast setup.
 *   **Permissions**: Default `GITHUB_TOKEN`.
 
-### Pattern B: Centralized Multi-Repository
+### Pattern B: Centralized multi-repository
 One "Control" repository manages issues across multiple "Target" repositories.
 
 *   **Best For**: Organization-wide control, compliance, and unified routing.
 *   **Primary Benefit**: One place to manage all configuration and automation.
 *   **Permissions**: Elevated (GitHub App or PAT).
 
-### Pattern C: Distributed Multi-Repository
+### Pattern C: Distributed multi-repository
 Every repository has its own bot and config, but they all share a centralized knowledge base.
 
 *   **Best For**: Microservices, high team autonomy, cross-team discovery.
@@ -34,7 +34,7 @@ Every repository has its own bot and config, but they all share a centralized kn
 
 ---
 
-## Comparison Matrix
+## Comparison matrix
 
 | Feature | Pattern A | Pattern B | Pattern C |
 | :--- | :--- | :--- | :--- |
@@ -46,12 +46,12 @@ Every repository has its own bot and config, but they all share a centralized kn
 
 ---
 
-## Choosing Your Path
+## Choosing your path
 
 If you're just starting out, we recommend **Pattern A**. It allows you to experience the value of Simili Bot immediately without organization-level configuration.
 
 <CardGroup cols={3}>
-  <Card title="Pattern A Setup" href="/getting-started/single-repo-setup" icon="rocket" />
-  <Card title="Pattern B Setup" href="/getting-started/centralized-multi-repo-setup" icon="building" />
-  <Card title="Pattern C Setup" href="/getting-started/distributed-multi-repo-setup" icon="network-wired" />
+  <Card title="Pattern A setup" href="/getting-started/single-repo-setup" icon="rocket" />
+  <Card title="Pattern B setup" href="/getting-started/centralized-multi-repo-setup" icon="building" />
+  <Card title="Pattern C setup" href="/getting-started/distributed-multi-repo-setup" icon="network-wired" />
 </CardGroup>

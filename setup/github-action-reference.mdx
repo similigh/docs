@@ -25,9 +25,9 @@ The GitHub Action runs Simili Bot in response to issue events. It:
 - Gemini API key
 - Repository secrets configured (see [Installation](/setup/installation))
 
-## Workflow Configuration
+## Workflow configuration
 
-### Basic Setup
+### Basic setup
 
 Create `.github/workflows/simili-bot.yml`:
 
@@ -83,9 +83,9 @@ on:
       - edited      # Comment edited
 ```
 
-## Advanced Configurations
+## Advanced configurations
 
-### Include Multiple Triggers
+### Include multiple triggers
 
 Process on both issues and pull request reviews:
 
@@ -97,7 +97,7 @@ on:
     types: [opened, edited]
 ```
 
-### Test with Dry-Run Mode
+### Test with dry-run mode
 
 Try Simili Bot without posting to GitHub:
 
@@ -125,7 +125,7 @@ jobs:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
 ```
 
-### Bulk Indexing Workflow
+### Bulk indexing workflow
 
 Periodically index all issues:
 
@@ -152,7 +152,7 @@ jobs:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
 ```
 
-### Branch-Specific Workflows
+### Branch-specific workflows
 
 Run different configurations per branch:
 
@@ -189,15 +189,15 @@ permissions:
   repository-projects: write  # Update project boards (optional)
 ```
 
-## Secrets Management
+## Secrets management
 
-### Adding Secrets
+### Adding secrets
 
 1. Go to **Settings** → **Secrets and variables** → **Actions**
 2. Click **New repository secret**
 3. Add secrets from [Installation](/setup/installation#step-2-add-github-secrets-1-min)
 
-### Using Organization Secrets
+### Using organization secrets
 
 For multi-repository setup, use organization secrets:
 
@@ -206,7 +206,7 @@ For multi-repository setup, use organization secrets:
 3. Grant repository access
 4. Reference in workflows: `${{ secrets.ORG_SECRET_NAME }}`
 
-### Rotating Secrets
+### Rotating secrets
 
 To rotate API keys:
 1. Generate new key in external service
@@ -214,22 +214,22 @@ To rotate API keys:
 3. Delete old key from external service
 4. Next workflow run uses new credentials
 
-## Monitoring & Logging
+## Monitoring & logging
 
-### View Workflow Runs
+### View workflow runs
 
 1. Go to **Actions** tab in your repository
 2. Click **Simili Bot** workflow
 3. View recent runs
 
-### Check Logs
+### Check logs
 
 Click on a workflow run to see:
 - Step-by-step execution
 - Full output logs
 - Any errors or warnings
 
-### Common Log Patterns
+### Common log patterns
 
 **Success:**
 ```
@@ -253,9 +253,9 @@ Error: Invalid API key for Gemini
 Error: Repository not configured in simili.yaml
 ```
 
-## Multi-Repository Setup
+## Multi-repository setup
 
-### Same Configuration Across Repos
+### Same configuration across repos
 
 Use organization secrets and shared configuration:
 
@@ -273,7 +273,7 @@ env:
   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 ```
 
-### Different Configuration Per Repo
+### Different configuration per repo
 
 Each repository can have unique `simili.yaml`:
 
@@ -286,9 +286,9 @@ repositories:
     description: "Web UI and client"
 ```
 
-## Performance Optimization
+## Performance optimization
 
-### Reduce Workflow Duration
+### Reduce workflow duration
 
 **Dry-run for testing:**
 ```yaml
@@ -322,7 +322,7 @@ jobs:
     # ... rest of workflow
 ```
 
-### Parallel Processing
+### Parallel processing
 
 For bulk indexing, use matrix strategy:
 
@@ -376,7 +376,7 @@ jobs:
 - Ensure secrets are set at repository level
 - Check they're not only set at organization level
 
-## Next Steps
+## Next steps
 
 <CardGroup cols={1}>
   <Card
@@ -386,13 +386,13 @@ jobs:
     Customize behavior for your repository
   </Card>
   <Card
-    title="View CLI Reference"
+    title="View CLI reference"
     href="/reference/cli/process-command"
   >
     Understand all command options
   </Card>
   <Card
-    title="Debug Issues"
+    title="Debug issues"
     href="/guides/troubleshooting"
   >
     Resolve common problems

@@ -25,21 +25,21 @@ simili process [OPTIONS]
 
 ## Examples
 
-### Basic Processing
+### Basic processing
 
 Process single issue:
 ```bash
 simili process --issue event.json --config simili.yaml
 ```
 
-### Dry-Run (Safe Testing)
+### Dry-run (Safe testing)
 
 Test without posting to GitHub:
 ```bash
 simili process --issue event.json --config simili.yaml --dry-run
 ```
 
-### Custom Workflow
+### Custom workflow
 
 Use different analysis pipeline:
 ```bash
@@ -51,10 +51,10 @@ Available workflows:
 - `similarity-only` - Search only
 - `index-only` - Indexing only
 
-## Next Steps
+## Next steps
 
 <CardGroup cols={1}>
-  <Card title="Index Command" href="/reference/cli/index-command">
+  <Card title="Index command" href="/reference/cli/index-command">
     Bulk index issues
   </Card>
 </CardGroup>

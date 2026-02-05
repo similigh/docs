@@ -15,29 +15,29 @@ Qdrant is a vector database optimized for similarity search. Simili Bot uses it 
 - Retrieve related discussions quickly
 - Scale to thousands of issues
 
-## Setup Options
+## Set up options
 
 <CardGroup cols={2}>
   <Card title="Qdrant Cloud" href="#qdrant-cloud">
     Managed service - easiest to get started
   </Card>
-  <Card title="Self-Hosted" href="#self-hosted">
+  <Card title="Self-hosted" href="#self-hosted">
     Docker container - full control
   </Card>
-  <Card title="Local Development" href="#local-development">
+  <Card title="Local development" href="#local-development">
     Docker Compose - local testing
   </Card>
 </CardGroup>
 
 ## Qdrant Cloud
 
-### 1. Create Account
+### 1. Create account
 
 1. Go to [Qdrant Cloud](https://cloud.qdrant.io)
 2. Sign up with your email or GitHub account
 3. Verify email
 
-### 2. Create Cluster
+### 2. Create cluster
 
 1. Click **Create Cluster**
 2. Choose plan:
@@ -46,7 +46,7 @@ Qdrant is a vector database optimized for similarity search. Simili Bot uses it 
 3. Select region close to your location
 4. Click **Create**
 
-### 3. Get Connection Details
+### 3. Get connection details
 
 After cluster creation:
 
@@ -71,7 +71,7 @@ Add GitHub Secret:
 2. Create secret `QDRANT_API_KEY` with your key
 3. Create secret `QDRANT_URL` with your URL
 
-### 5. Test Connection
+### 5. Test connection
 
 ```bash
 # With CLI
@@ -80,9 +80,9 @@ export QDRANT_API_KEY="your-key"
 simili process --issue test.json --config simili.yaml --dry-run
 ```
 
-## Self-Hosted
+## Self-hosted
 
-### Docker Container
+### Docker container
 
 Run Qdrant in Docker:
 
@@ -113,7 +113,7 @@ qdrant:
   tls: false  # Disable TLS for local
 ```
 
-### Data Persistence
+### Data persistence
 
 Store data outside container:
 
@@ -129,7 +129,7 @@ docker run -p 6333:6333 \
 
 Data persists even if container is deleted.
 
-## Local Development
+## Local development
 
 ### Docker Compose
 
@@ -175,9 +175,9 @@ qdrant:
   tls: false
 ```
 
-## Configuration Reference
+## Configuration reference
 
-### Connection Settings
+### Connection settings
 
 ```yaml
 qdrant:
@@ -198,7 +198,7 @@ qdrant:
 | `timeout` | number | Request timeout (seconds) | 30 | No |
 | `max_retries` | number | Retry attempts on failure | 3 | No |
 
-### Collection Management
+### Collection management
 
 Simili Bot automatically creates collections if needed.
 
@@ -221,9 +221,9 @@ curl -X PUT "http://localhost:6333/collections/issues" \
   }'
 ```
 
-## Common Configurations
+## Common configurations
 
-### Qdrant Cloud Production
+### Qdrant Cloud production
 
 ```yaml
 qdrant:
@@ -235,7 +235,7 @@ qdrant:
   max_retries: 5
 ```
 
-### Local Development
+### Local development
 
 ```yaml
 qdrant:
@@ -246,7 +246,7 @@ qdrant:
   timeout: 10
 ```
 
-### Staging Cluster
+### Staging cluster
 
 ```yaml
 qdrant:
@@ -259,7 +259,7 @@ qdrant:
 
 ## Troubleshooting
 
-### Connection Refused
+### Connection refused
 
 **Error:** `connection refused`
 
@@ -269,7 +269,7 @@ qdrant:
 - For cloud: verify IP whitelist allows your connection
 - Check firewall settings
 
-### Authentication Failed
+### Authentication failed
 
 **Error:** `api key not found` or `unauthorized`
 
@@ -279,7 +279,7 @@ qdrant:
 - Ensure key is passed in `api_key` field
 - Try regenerating key in Qdrant dashboard
 
-### Timeout Errors
+### Timeout errors
 
 **Error:** `i/o timeout` or `context deadline exceeded`
 
@@ -289,7 +289,7 @@ qdrant:
 - For cloud clusters, use regional endpoint
 - Reduce query complexity
 
-### Collection Not Found
+### Collection not found
 
 **Error:** `collection not found`
 
@@ -298,7 +298,7 @@ qdrant:
 - Verify collection name in config matches
 - Check you have API permissions to create collections
 
-### Out of Storage
+### Out of storage
 
 **Error:** `collection is read only`
 
@@ -308,9 +308,9 @@ qdrant:
 - Reduce `max_similar_to_show` value
 - Implement issue retention policy
 
-## Performance Tuning
+## Performance tuning
 
-### Optimize Search Speed
+### Optimize search speed
 
 Increase `timeout` for large collections:
 
@@ -319,7 +319,7 @@ qdrant:
   timeout: 60
 ```
 
-### Reduce Memory Usage
+### Reduce memory usage
 
 Limit vector dimensions (trade accuracy for memory):
 
@@ -328,7 +328,7 @@ embedding:
   dimensions: 384  # Smaller vectors
 ```
 
-### Parallel Processing
+### Parallel processing
 
 For bulk indexing, use more workers:
 
@@ -338,7 +338,7 @@ simili index --repo owner/repo --since 30d --workers 10
 
 ## Monitoring
 
-### Check Health
+### Check health
 
 **Cloud Dashboard:**
 1. Go to [Qdrant Cloud](https://cloud.qdrant.io)
@@ -357,21 +357,21 @@ Expected response:
 }
 ```
 
-### View Collections
+### View collections
 
 ```bash
 curl -H "api-key: YOUR_KEY" \
   https://your-cluster.qdrant.io:6333/collections
 ```
 
-### Check Point Count
+### Check point count
 
 ```bash
 curl -H "api-key: YOUR_KEY" \
   https://your-cluster.qdrant.io:6333/collections/issues
 ```
 
-## Cost Optimization
+## Cost optimization
 
 **Qdrant Cloud Pricing:**
 - Free: 1GB storage
@@ -386,17 +386,17 @@ curl -H "api-key: YOUR_KEY" \
 - Consolidate multiple projects into one collection
 - Implement archival strategy
 
-## Next Steps
+## Next steps
 
 <CardGroup cols={2}>
   <Card
-    title="Gemini Setup"
+    title="Gemini setup"
     href="/configuration/gemini"
   >
     Configure AI engine
   </Card>
   <Card
-    title="Configuration Overview"
+    title="Configuration overview"
     href="/configuration/overview"
   >
     View all configuration options

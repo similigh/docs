@@ -19,7 +19,7 @@ Two routing modes:
 1. **Rule-Based**: Pattern matching on metadata
 2. **LLM-Based**: Semantic analysis with AI
 
-## Enable Transfer
+## Enable transfer
 
 ```yaml
 transfer:
@@ -30,7 +30,7 @@ transfer:
 
 With `enabled: false`, no routing happens.
 
-## Rule-Based Routing
+## Rule-based routing
 
 Match issues against explicit patterns:
 
@@ -51,7 +51,7 @@ transfer:
       body_contains: ["github actions", "workflow", ".yml"]
 ```
 
-### Rule Matching Logic
+### Rule matching logic
 
 All conditions must match (AND logic):
 
@@ -66,7 +66,7 @@ All conditions must match (AND logic):
 
 If all conditions match → issue is routed to target.
 
-### Condition Types
+### Condition types
 
 #### 1. Labels (AND - all required)
 
@@ -74,19 +74,19 @@ If all conditions match → issue is routed to target.
 labels: ["bug", "urgent"]  # Must have BOTH labels
 ```
 
-#### 2. Labels Any (OR - any required)
+#### 2. Labels any (OR - any required)
 
 ```yaml
 labels_any: ["bug", "feature"]  # Must have either label
 ```
 
-#### 3. Title Contains
+#### 3. Title contains
 
 ```yaml
 title_contains: ["api", "error"]  # Title must contain "api" OR "error"
 ```
 
-#### 4. Body Contains
+#### 4. Body contains
 
 ```yaml
 body_contains: ["authentication", "login"]  # Body must contain either
@@ -119,7 +119,7 @@ rules:
 
 First matching rule wins.
 
-## LLM-Based Routing
+## LLM-based routing
 
 Use AI to understand issue content:
 
@@ -136,7 +136,7 @@ LLM routing:
 - Makes intelligent decisions
 - Configurable as primary or fallback
 
-### Combined Approach
+### Combined approach
 
 Use both rule-based and LLM:
 
@@ -153,7 +153,7 @@ transfer:
     # If no rules match, LLM decides
 ```
 
-## Complete Rule Example
+## Complete rule example
 
 ```yaml
 transfer:
@@ -198,7 +198,7 @@ transfer:
       enabled: true
 ```
 
-## Avoiding Routing Loops
+## Avoiding routing loops
 
 Prevent infinite routing:
 
@@ -216,7 +216,7 @@ Simili Bot automatically:
 - Maintains blocked_targets list
 - Won't route same issue twice
 
-## Disable Specific Rules
+## Disable specific rules
 
 Temporarily disable a rule:
 
@@ -228,9 +228,9 @@ rules:
     enabled: false  # Won't be evaluated
 ```
 
-## Common Patterns
+## Common patterns
 
-### By Feature Area
+### By feature area
 
 ```yaml
 rules:
@@ -249,7 +249,7 @@ rules:
     title_contains: ["email", "notification", "sms", "alert"]
 ```
 
-### By Issue Type
+### By issue type
 
 ```yaml
 rules:
@@ -269,7 +269,7 @@ rules:
     labels: ["question"]
 ```
 
-### By Team
+### By team
 
 ```yaml
 rules:
@@ -282,7 +282,7 @@ rules:
     labels: ["team:frontend"]
 ```
 
-## Configuration Reference
+## Configuration reference
 
 ```yaml
 transfer:
@@ -291,7 +291,7 @@ transfer:
   rules: array                  # Array of rules
 ```
 
-### Rule Fields
+### Rule fields
 
 ```yaml
 - name: string                  # Rule name (for logs)
@@ -305,9 +305,9 @@ transfer:
   author: string               # Author matching
 ```
 
-## Testing Rules
+## Testing rules
 
-### Dry-Run Mode
+### Dry-run mode
 
 Test without transferring:
 
@@ -321,7 +321,7 @@ Output shows:
 [DRY RUN] Would post comment: "Moved to correct repository"
 ```
 
-### Check Logs
+### Check logs
 
 Logs show routing decisions:
 ```
@@ -333,7 +333,7 @@ Evaluating rule: "Backend issues"
 
 ## Troubleshooting
 
-### Rule Not Matching
+### Rule not matching
 
 **Debug steps:**
 1. Check rule is `enabled: true`
@@ -341,7 +341,7 @@ Evaluating rule: "Backend issues"
 3. Use dry-run to see which rules match
 4. Check logs for condition evaluation
 
-### Wrong Repository Selected
+### Wrong repository selected
 
 **Causes:**
 - Higher priority rule matches first
@@ -349,7 +349,7 @@ Evaluating rule: "Backend issues"
 - Add more specific conditions
 - Enable LLM fallback for context
 
-### Issue Not Transferred
+### Issue not transferred
 
 **Causes:**
 - Rule didn't match
@@ -363,7 +363,7 @@ Evaluating rule: "Backend issues"
 - Verify target repo exists
 - Check rule conditions
 
-## Performance Notes
+## Performance notes
 
 - Rule evaluation is fast (<100ms)
 - LLM routing takes 2-5 seconds
@@ -371,9 +371,9 @@ Evaluating rule: "Backend issues"
   - Rules for obvious cases
   - LLM as fallback/intelligent
 
-## Best Practices
+## Best practices
 
-### 1. Use Clear Rule Names
+### 1. Use clear rule names
 
 ```yaml
 # Good
@@ -383,7 +383,7 @@ Evaluating rule: "Backend issues"
 - name: "docs"
 ```
 
-### 2. Start with High Priorities
+### 2. Start with high priorities
 
 ```yaml
 rules:
@@ -392,7 +392,7 @@ rules:
   - priority: 1    # Most general
 ```
 
-### 3. Combine Conditions Carefully
+### 3. Combine conditions carefully
 
 ```yaml
 # Good - all conditions make sense
@@ -406,14 +406,14 @@ rules:
   title_contains: ["rest", "http"]
 ```
 
-### 4. Monitor Routing
+### 4. Monitor routing
 
 Check logs regularly:
 - Are issues going to right repos?
 - Any unexpected routings?
 - Adjust rules as needed
 
-### 5. Use LLM as Fallback
+### 5. Use LLM as fallback
 
 ```yaml
 transfer:
@@ -430,17 +430,17 @@ rules:
     # ... conditions
 ```
 
-## Next Steps
+## Next steps
 
 <CardGroup cols={2}>
   <Card
-    title="Issue Routing Guide"
+    title="Issue routing guide"
     href="/guides/issue-routing"
   >
     Learn how issue routing works
   </Card>
   <Card
-    title="Patterns Overview"
+    title="Patterns overview"
     href="/getting-started/patterns-overview"
   >
     Setup multi-repository management

@@ -7,16 +7,16 @@ description: Find related issues using AI embeddings
 
 Simili Bot uses semantic search to find related issues across your repositories based on meaning, not just keywords. This approach allows the bot to identify relationships that traditional keyword-based search would miss.
 
-## How It Works
+## How it works
 
-### Theory vs Reality
+### Theory vs reality
 
 In a traditional search system, an issue titled "Login button doesn't work" might be missed if you search for "authentication failures". Semantic search bridges this gap.
 
 *   **Traditional Search**: Only finds issues with exact word matches.
 *   **Semantic Search**: AI understands that "Can't authenticate" is semantically related to "Sign-in issues" and "Login broken".
 
-### The Process
+### The process
 
 Simili Bot follows a three-step process to enable semantic discovery:
 
@@ -38,7 +38,7 @@ Simili Bot follows a three-step process to enable semantic discovery:
 
 Tuning the search sensitivity is crucial for balancing noise and discovery.
 
-### Tuning Thresholds
+### Tuning thresholds
 
 The `similarity_threshold` determines how strict the bot is when suggesting related issues.
 
@@ -48,7 +48,7 @@ The `similarity_threshold` determines how strict the bot is when suggesting rela
 | **Recommended** | `0.70` | Provides a good balance of accuracy and broad discovery. |
 | **Permissive** | `0.60` | Returns loosely related issues; higher chance of false positives. |
 
-### Configuration Example
+### Configuration example
 
 Add these settings to your `simili.yaml` or workflow environment:
 
@@ -61,19 +61,19 @@ defaults:
 
 ---
 
-## Use Cases
+## Use cases
 
-### Finding Duplicate Issues
+### Finding duplicate issues
 Instantly identify if a new bug report has already been discussed in another repo, even if the wording is completely different. This prevents engineers from working on the same problem in isolation.
 
-### Pattern Recognition
+### Pattern recognition
 Detect if multiple teams are experiencing related infrastructure failures by seeing cross-repo search results in real-time. For example, a "Database timeout" in the backend and "Slow login" in the frontend can be linked semantically.
 
 ---
 
-## Next Steps
+## Next steps
 
 <CardGroup cols={2}>
-  <Card title="Duplicate Detection" href="/guides/duplicate-detection" icon="copy" />
-  <Card title="Qdrant Setup" href="/configuration/qdrant" icon="database" />
+  <Card title="Duplicate detection" href="/guides/duplicate-detection" icon="copy" />
+  <Card title="Qdrant setup" href="/configuration/qdrant" icon="database" />
 </CardGroup>

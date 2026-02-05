@@ -25,26 +25,26 @@ simili index [OPTIONS]
 
 ## Examples
 
-### Index Last 30 Days
+### Index last 30 days
 
 ```bash
 simili index --repo owner/repo --since 30d
 ```
 
-### Index Since Specific Date
+### Index since specific date
 
 ```bash
 simili index --repo owner/repo --since 2024-01-01
 ```
 
-### Parallel Processing
+### Parallel processing
 
 Use more workers for faster indexing:
 ```bash
 simili index --repo owner/repo --workers 10
 ```
 
-### Index Everything
+### Index everything
 
 ```bash
 simili index --repo owner/repo --since 2020-01-01
@@ -63,16 +63,16 @@ Indexing with 5 workers...
   [====>----] 45% (235/523) - Speed: 12 issues/sec
 ```
 
-## Time Format
+## Time format
 
-### Duration Strings
+### Duration strings
 - `1d` - 1 day ago
 - `7d` - 7 days ago
 - `30d` - 30 days ago
 - `1w` - 1 week ago
 - `1m` - 1 month ago
 
-### ISO 8601 Dates
+### ISO 8601 dates
 - `2024-01-01`
 - `2024-01-01T12:00:00Z`
 
@@ -126,7 +126,7 @@ See [Configuration Overview](/configuration/overview).
 
 ## Troubleshooting
 
-### Rate Limited
+### Rate limited
 
 ```
 Error: 429 Too Many Requests
@@ -137,18 +137,18 @@ Reduce worker count:
 simili index --repo owner/repo --workers 2
 ```
 
-### Out of Memory
+### Out of memory
 
 Reduce workers or process in batches.
 
-### Collection Already Exists
+### Collection already exists
 
 First index updates existing collection (safe to re-run).
 
-## Next Steps
+## Next steps
 
 <CardGroup cols={1}>
-  <Card title="Process Command" href="/reference/cli/process-command">
+  <Card title="Process command" href="/reference/cli/process-command">
     Process individual issues
   </Card>
 </CardGroup>

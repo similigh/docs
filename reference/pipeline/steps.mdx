@@ -7,7 +7,7 @@ description: Reference for all 13 pipeline steps
 
 Simili Bot's modular pipeline consists of 13 composable steps.
 
-## Step Overview
+## Step overview
 
 | # | Step | Purpose | Speed | Dependencies |
 |---|------|---------|-------|---|
@@ -25,7 +25,7 @@ Simili Bot's modular pipeline consists of 13 composable steps.
 | 12 | indexer | Add to vector DB | 500ms-1s | Qdrant, Embedder |
 | 13 | pending_actions | Schedule ops | <10ms | State |
 
-## Detailed Steps
+## Detailed steps
 
 ### 1. gatekeeper
 Checks if repository is enabled in configuration.
@@ -131,7 +131,7 @@ Schedules actions for later execution.
 **Speed:** <10ms
 **Dependencies:** State management
 
-## Execution Flow
+## Execution flow
 
 ```
 START
@@ -167,7 +167,7 @@ END (Output results)
 
 Each step processes the same `Context` object, passing data forward.
 
-## Step Dependencies
+## Step dependencies
 
 Steps can be reordered but dependencies matter:
 
@@ -177,10 +177,10 @@ Steps can be reordered but dependencies matter:
 - `response_builder` should be near end
 - `action_executor` should be near end
 
-## Next Steps
+## Next steps
 
 <CardGroup cols={1}>
-  <Card title="Pipeline Context" href="/reference/pipeline/context">
+  <Card title="Pipeline context" href="/reference/pipeline/context">
     How context flows through steps
   </Card>
 </CardGroup>

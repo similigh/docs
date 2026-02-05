@@ -7,7 +7,7 @@ description: Deploy Simili Bot at scale
 
 Deploy Simili Bot to production with high reliability and performance.
 
-## Deployment Options
+## Deployment options
 
 <CardGroup cols={2}>
   <Card title="GitHub Action" href="/setup/github-action-reference">
@@ -21,7 +21,7 @@ Deploy Simili Bot to production with high reliability and performance.
   </Card>
 </CardGroup>
 
-## GitHub Action (Recommended)
+## GitHub Action (recommended)
 
 Simplest deployment - runs automatically on issue events.
 
@@ -37,7 +37,7 @@ Simplest deployment - runs automatically on issue events.
 
 See [GitHub Action Setup](/setup/github-action-reference) for details.
 
-## Self-Hosted Docker
+## Self-hosted Docker
 
 Full control over deployment.
 
@@ -52,7 +52,7 @@ Full control over deployment.
 - Scaling complexity
 - Security responsibility
 
-## Kubernetes Deployment (Enterprise)
+## Kubernetes deployment (enterprise)
 
 For large-scale deployments:
 
@@ -112,7 +112,7 @@ spec:
           name: simili-config
 ```
 
-## Production Checklist
+## Production checklist
 
 - [ ] Secrets configured securely
 - [ ] Error logging enabled
@@ -132,9 +132,9 @@ Monitor these metrics:
 - GitHub API quota usage
 - Gemini API costs
 
-## Backup & Recovery
+## Backup & recovery
 
-### Qdrant Backup
+### Qdrant backup
 
 Regularly backup your vector database:
 
@@ -150,7 +150,7 @@ docker run --rm -v qdrant_storage:/qdrant/storage \
   backup create /backup
 ```
 
-## Cost Optimization
+## Cost optimization
 
 - Use dev cluster for testing
 - Monitor API usage
@@ -165,7 +165,7 @@ docker run --rm -v qdrant_storage:/qdrant/storage \
 - Use VPC for self-hosted
 - Enable TLS everywhere
 
-## Next Steps
+## Next steps
 
 <CardGroup cols={1}>
   <Card title="Troubleshooting" href="/guides/troubleshooting">

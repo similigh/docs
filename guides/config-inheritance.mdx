@@ -24,7 +24,7 @@ base-config.yaml  - Shared configuration
   └─ mobile/simili.yaml      - Extends base, adds specific settings
 ```
 
-## How It Works
+## How it works
 
 1. **Parent Config** - Stored in shared repository
 2. **Child Config** - References parent via `extends`
@@ -33,7 +33,7 @@ base-config.yaml  - Shared configuration
 
 ## Setup
 
-### 1. Create Base Configuration
+### 1. Create base configuration
 
 In `company/policies` repository:
 
@@ -64,7 +64,7 @@ transfer:
       title_contains: ["documentation", "docs"]
 ```
 
-### 2. Create Child Configurations
+### 2. Create child configurations
 
 In individual repositories:
 
@@ -90,7 +90,7 @@ repositories:
     description: "React web application"
 ```
 
-## Merging Rules
+## Merging rules
 
 When child extends parent:
 1. Parent loaded and parsed
@@ -116,9 +116,9 @@ defaults:
   max_similar_to_show: 5      # From parent
 ```
 
-## Use Cases
+## Use cases
 
-### Organization-Wide Defaults
+### Organization-wide defaults
 
 Parent handles organization policies:
 ```yaml
@@ -141,7 +141,7 @@ repositories:
     description: "Backend for our team"
 ```
 
-### Multiple Inheritance Levels
+### Multiple inheritance levels
 
 ```yaml
 # base.yaml (organization)
@@ -165,7 +165,7 @@ Three levels:
 2. Team customizations
 3. Repository specifics
 
-### Staged Rollouts
+### Staged rollouts
 
 **Base (stable):**
 ```yaml
@@ -183,9 +183,9 @@ transfer:
 **Production (when stable):**
 Update base.yaml, all inherit
 
-## Best Practices
+## Best practices
 
-### 1. Keep Base Minimal
+### 1. Keep base minimal
 
 Base should have:
 - Common credentials setup
@@ -197,7 +197,7 @@ Avoid:
 - Per-team exceptions
 - Implementation details
 
-### 2. Use Raw GitHub URLs
+### 2. Use raw GitHub URLs
 
 Always use raw content URLs:
 ```yaml
@@ -209,7 +209,7 @@ Not:
 extends: "https://github.com/company/policies/blob/main/simili.yaml"
 ```
 
-### 3. Version Your Configs
+### 3. Version your configs
 
 Tag base configurations:
 ```yaml
@@ -221,7 +221,7 @@ Allows:
 - Gradual migration to new versions
 - A/B testing configurations
 
-### 4. Document Inheritance
+### 4. Document inheritance
 
 Add comments in child config:
 ```yaml
@@ -237,7 +237,7 @@ repositories:
 
 ## Troubleshooting
 
-### Configuration Not Found
+### Configuration not found
 
 **Error:** `Failed to fetch extends URL`
 
@@ -247,7 +247,7 @@ repositories:
 - Use raw content URL, not web UI URL
 - Verify base configuration file exists
 
-### Merge Conflicts
+### Merge conflicts
 
 **Issue:** Child and parent have incompatible settings
 
@@ -264,7 +264,7 @@ transfer:
       target: "company/team-repo"
 ```
 
-### Circular Dependencies
+### Circular dependencies
 
 **Error:** Config extends itself (directly or indirectly)
 
@@ -276,19 +276,19 @@ B extends A  # Don't do this!
 
 ## Performance
 
-### Fetch Time
+### Fetch time
 
 - First fetch: 100-500ms (network)
 - Cached: <10ms
 - No real-world impact on processing
 
-### Size Limits
+### Size limits
 
 - No hard limit on config size
 - Typical: <10KB
 - Can handle 100+ repositories
 
-## Migration Path
+## Migration path
 
 **Step 1: Create Base**
 - Extract common config to repository
@@ -307,7 +307,7 @@ B extends A  # Don't do this!
 - All repos automatically use new config
 - Gradual rollout possible with versions
 
-## Real-World Example
+## Real-world example
 
 ```yaml
 # company/policies/.github/simili-base.yaml
@@ -349,13 +349,13 @@ transfer:
 
 Easy to update organization-wide settings while keeping repo-specific rules!
 
-## Next Steps
+## Next steps
 
 <CardGroup cols={2}>
-  <Card title="Patterns Overview" href="/getting-started/patterns-overview">
+  <Card title="Patterns overview" href="/getting-started/patterns-overview">
     Manage multiple repositories
   </Card>
-  <Card title="Configuration Overview" href="/configuration/overview">
+  <Card title="Configuration overview" href="/configuration/overview">
     View all configuration options
   </Card>
 </CardGroup>

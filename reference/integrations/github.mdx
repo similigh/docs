@@ -16,7 +16,7 @@ Simili Bot uses GitHub API to:
 - Transfer issues to other repositories
 - Handle authentication and permissions
 
-## API Methods
+## API methods
 
 **REST API** (v3)
 - Fetch issues and comments
@@ -33,7 +33,7 @@ Simili Bot uses GitHub API to:
 
 Two authentication modes:
 
-### Primary Token
+### Primary token
 ```bash
 GITHUB_TOKEN=ghp_xxxx
 ```
@@ -44,7 +44,7 @@ For normal operations (read/write issues, create comments).
 - `repo` - Full control of repositories
 - `write:checks` - Write to pull requests
 
-### Elevated Token (Optional)
+### Elevated token (optional)
 ```bash
 TRANSFER_TOKEN=ghp_xxxx
 ```
@@ -73,7 +73,7 @@ For transferring issues across repositories.
 - Get author information
 - Read issue state and history
 
-## Rate Limiting
+## Rate limiting
 
 **REST API:**
 - 5,000 requests/hour (authenticated)
@@ -100,7 +100,7 @@ For transferring issues across repositories.
 - Use elevated token only for transfers
 - Regular audit of token usage
 
-## Integration Points
+## Integration points
 
 1. **Issue Fetching** - Get issue details
 2. **Comment Posting** - Post analysis results
@@ -135,10 +135,10 @@ From: org/repo1
 To: org/repo2
 ```
 
-## Next Steps
+## Next steps
 
 <CardGroup cols={1}>
-  <Card title="GitHub Action Setup" href="/setup/github-action-reference">
+  <Card title="GitHub Action setup" href="/setup/github-action-reference">
     Configure GitHub Actions integration
   </Card>
 </CardGroup>

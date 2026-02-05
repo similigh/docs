@@ -7,7 +7,7 @@ description: "Compose configurations using inheritance and shared bases"
 
 Learn how to build a scalable configuration system for Simili Bot using modular pieces and inheritance.
 
-## The `extends` Keyword
+## The `extends` keyword
 
 The core of modular configuration is the `extends` keyword. It allows one configuration file to inherit settings from another, typically hosted at a remote URL (like GitHub).
 
@@ -19,11 +19,11 @@ defaults:
   similarity_threshold: 0.85
 ```
 
-## Pattern: Shared Defaults
+## Pattern: Shared defaults
 
 Create a single source of truth for your organization's Simili Bot policies.
 
-### 1. Create Base Config (`org-base.yaml`)
+### 1. Create base config (`org-base.yaml`)
 
 ```yaml
 qdrant:
@@ -41,7 +41,7 @@ defaults:
   cross_repo_search: true
 ```
 
-### 2. Use in Repositories
+### 2. Use in repositories
 
 Each repository only needs to specify itself:
 
@@ -54,7 +54,7 @@ repositories:
     description: "Backend services"
 ```
 
-## Pattern: Environment Overrides
+## Pattern: Environment overrides
 
 Manage different settings for staging and production environments.
 
@@ -80,7 +80,7 @@ defaults:
   similarity_threshold: 0.80 # Be stricter in production
 ```
 
-## Pattern: Team-Specific Overrides
+## Pattern: Team-specific overrides
 
 Allow teams to define their own routing rules while sharing infrastructure settings.
 
@@ -98,7 +98,7 @@ transfer:
       target: "my-org/android-app"
 ```
 
-## Best Practices
+## Best practices
 
 1. **Use Raw URLs**: Always extend from the "Raw" version of a file on GitHub.
 2. **Version Your Bases**: Use tags or branches in your URLs (e.g., `.../main/base.yaml` or `.../v1.0/base.yaml`) to prevent breaking changes.
@@ -114,7 +114,7 @@ transfer:
 ---
 
 <Card
-  title="Configuration Inheritance Guide"
+  title="Configuration inheritance guide"
   href="/guides/config-inheritance"
   icon="network-wired"
 >

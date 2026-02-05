@@ -7,7 +7,7 @@ description: Explore all the capabilities of Simili Bot v0.1.0
 
 Simili Bot provides a comprehensive suite of features for intelligent GitHub issue management.
 
-## Semantic Search
+## Semantic search
 
 Find related issues across your repositories using AI-powered semantic embeddings.
 
@@ -29,7 +29,7 @@ defaults:
   cross_repo_search: true
 ```
 
-## Duplicate Detection
+## Duplicate detection
 
 Automatically identify when a new issue duplicates an existing one using AI analysis.
 
@@ -48,7 +48,7 @@ Analysis: Both issues describe the same authentication timeout
 problem in the login flow with identical error messages.
 ```
 
-## Intelligent Routing
+## Intelligent routing
 
 Automatically transfer issues to the correct repository based on content analysis.
 
@@ -80,7 +80,7 @@ transfer:
       title_contains: ["documentation", "docs"]
 ```
 
-## Quality Assessment
+## Quality assessment
 
 Evaluate issue descriptions for completeness and clarity.
 
@@ -97,7 +97,7 @@ Evaluate issue descriptions for completeness and clarity.
 - Improvement suggestions
 - Example: "Add reproduction steps to improve clarity"
 
-## Auto Triage
+## Auto triage
 
 Automatically suggest appropriate labels based on issue content.
 
@@ -115,7 +115,7 @@ Suggested Labels:
 - high-priority (confidence: 65%)
 ```
 
-## Multi-Repository Support
+## Multi-repository support
 
 Manage issues across your entire organization with a single configuration.
 
@@ -140,7 +140,7 @@ repositories:
     description: "Web UI and client applications"
 ```
 
-## Configuration Inheritance
+## Configuration inheritance
 
 Extend parent configurations from other repositories.
 
@@ -159,7 +159,7 @@ repositories:
     enabled: true
 ```
 
-## Modular Pipeline
+## Modular pipeline
 
 Customize issue processing with pluggable pipeline steps.
 
@@ -183,7 +183,7 @@ Customize issue processing with pluggable pipeline steps.
 - `similarity-only` - Semantic search only
 - `index-only` - Indexing to vector database
 
-## Bulk Indexing
+## Bulk indexing
 
 Index all issues in a repository to the vector database for semantic search.
 
@@ -198,7 +198,7 @@ Index all issues in a repository to the vector database for semantic search.
 simili index --repo owner/name --since 30d --workers 5
 ```
 
-## GitHub Integration
+## GitHub integration
 
 Native GitHub integration for actions and information retrieval.
 
@@ -210,7 +210,7 @@ Native GitHub integration for actions and information retrieval.
 - Support for both public and private repositories
 - Cross-repository operations with elevated permissions
 
-## Dry-Run Mode
+## Dry-run mode
 
 Test changes safely without posting to GitHub.
 
@@ -225,7 +225,7 @@ Test changes safely without posting to GitHub.
 simili process --issue event.json --config config.yaml --dry-run
 ```
 
-## Environment Variables & Secrets
+## Environment variables & secrets
 
 Flexible credential management for deployment.
 
@@ -235,7 +235,7 @@ Flexible credential management for deployment.
 - Support for API keys and authentication tokens
 - No hardcoded credentials
 
-## Docker Support
+## Docker support
 
 Deploy Simili Bot as a containerized application.
 

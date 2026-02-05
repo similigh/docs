@@ -1,3 +1,4 @@
+```
 ---
 title: Architecture
 description: Deep dive into Simili Bot's modular architecture
@@ -7,17 +8,17 @@ description: Deep dive into Simili Bot's modular architecture
 
 Simili Bot uses a modular, pipeline-based architecture designed for flexibility and extensibility. It is built to handle organization-scale issue management while maintaining a small, efficient footprint.
 
-## System Design
+## System design
 
 Simili Bot acts as a bridge between GitHub events and AI-powered analysis engines. It processes events sequentially through a customizable pipeline.
 
-### High-Level Architecture
+### High-level architecture
 
 1.  **Event Source**: GitHub Actions or the Simili CLI provides the issue context.
 2.  **Pipeline Engine**: Processes the data through 13 discrete steps.
 3.  **Integrations**: Communicates with external services like Gemini (AI), Qdrant (Vector DB), and GitHub (API).
 
-### Pipeline Steps
+### Pipeline steps
 
 The pipeline is composed of distinct modules that handle specific logic:
 
@@ -44,15 +45,15 @@ The pipeline is composed of distinct modules that handle specific logic:
 
 ---
 
-## Core Components
+## Core components
 
-### Configuration Layer
+### Configuration layer
 Handles YAML loading, environment variable expansion, and complex inheritance logic using the `extends` keyword. This allows large organizations to maintain one base config that all other repositories inherit from.
 
-### Pipeline Engine
+### Pipeline engine
 A step-based execution model where each step implements a common interface and operates on a shared `Context` object. This ensures that new features can be added as isolated modules without complexity creep.
 
-### Integration Layer
+### Integration layer
 High-performance clients for:
 *   **Gemini**: AI-powered text analysis and embeddings.
 *   **Qdrant**: Low-latency vector search.
@@ -60,7 +61,7 @@ High-performance clients for:
 
 ---
 
-## Technical Specifications
+## Technical specifications
 
 | Aspect | Technology Stack |
 | :--- | :--- |
@@ -71,9 +72,9 @@ High-performance clients for:
 
 ---
 
-## Next Steps
+## Next steps
 
 <CardGroup cols={2}>
-  <Card title="Pipeline Reference" href="/reference/pipeline/steps" icon="diagram-project" />
-  <Card title="API Integrations" href="/reference/integrations/github" icon="plug" />
+  <Card title="Pipeline reference" href="/reference/pipeline/steps" icon="diagram-project" />
+  <Card title="API integrations" href="/reference/integrations/github" icon="plug" />
 </CardGroup>

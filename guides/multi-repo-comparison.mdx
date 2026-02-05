@@ -1,9 +1,9 @@
 ---
-title: Multi-Repository Setup
+title: Multi-Repository Comparison
 description: Manage issues across multiple repositories
 ---
 
-# Multi-Repository Setup
+# Multi-Repository Comparison
 
 Scale Simili Bot across your entire organization with centralized configuration.
 
@@ -26,7 +26,7 @@ simili.yaml
 
 ## Setup
 
-### 1. Configure All Repositories
+### 1. Configure all repositories
 
 ```yaml
 defaults:
@@ -50,7 +50,7 @@ repositories:
     description: "Mobile apps"
 ```
 
-### 2. Same Secrets Across Repos
+### 2. Same secrets across repos
 
 All repositories use same Qdrant and Gemini instances:
 
@@ -94,21 +94,21 @@ jobs:
 - Find related issues across projects
 - See organization-wide patterns
 
-✅ **Consistent Rules**
+✅ **Consistent rules**
 - Same quality standards
 - Unified labeling
 - Consistent triage
 
-✅ **Easy Maintenance**
+✅ **Easy maintenance**
 - One configuration file
 - Update rules once, applies everywhere
 - Centralized policy
 
-✅ **Better Routing**
+✅ **Better routing**
 - Issues go to correct repos automatically
 - Organization-wide organization
 
-## Configuration Inheritance
+## Configuration inheritance
 
 Share configuration across repositories:
 
@@ -142,7 +142,7 @@ repositories:
     enabled: true
 ```
 
-## Cross-Repository Search
+## Cross-repository search
 
 Find issues across all repositories:
 
@@ -162,7 +162,7 @@ Helps identify:
 - Common problems
 - Related discussions
 
-## Coordination Example
+## Coordination example
 
 **Scenario:** User opens issue "Login broken" in frontend repo
 
@@ -175,9 +175,9 @@ Helps identify:
 3. Posts comprehensive analysis
 4. Optionally routes to central issue tracker
 
-## Organization Structure
+## Organization structure
 
-### Team-Based
+### Team-based
 
 ```yaml
 repositories:
@@ -194,7 +194,7 @@ repositories:
     labels: ["team:b"]
 ```
 
-### Domain-Based
+### Domain-based
 
 ```yaml
 repositories:
@@ -214,9 +214,9 @@ repositories:
     labels: ["domain:notifications"]
 ```
 
-## Best Practices
+## Best practices
 
-### 1. Use Shared Organization Secrets
+### 1. Use shared organization secrets
 
 ```yaml
 env:
@@ -229,7 +229,7 @@ Set at organization level in GitHub:
 - Settings → Secrets and variables → Actions
 - Grant access to all repositories
 
-### 2. Version Control Configuration
+### 2. Version control configuration
 
 ```bash
 # Store in shared repository
@@ -239,7 +239,7 @@ company/policies/
 
 Easy updates and history tracking.
 
-### 3. Index All Issues
+### 3. Index all issues
 
 Bulk index all historical issues once:
 
@@ -256,7 +256,7 @@ simili index --repo company/mobile --since 2020-01-01
 
 ## Troubleshooting
 
-### Cross-Repo Search Not Working
+### Cross-repo search not working
 
 Check configuration:
 ```yaml
@@ -264,7 +264,7 @@ defaults:
   cross_repo_search: true  # Must be enabled
 ```
 
-### Too Many Suggestions
+### Too many suggestions
 
 Reduce results:
 ```yaml
@@ -273,7 +273,7 @@ defaults:
   similarity_threshold: 0.75  # Higher threshold
 ```
 
-### Configuration Not Found
+### Configuration not found
 
 Verify `simili.yaml` exists in all repositories.
 
@@ -285,7 +285,7 @@ View issues across organization:
 - See all issues with Simili Bot comments
 - Monitor routing decisions
 
-## Performance at Scale
+## Performance at scale
 
 **Organization with 50+ repositories:**
 - Use multi-repo configuration
@@ -295,13 +295,13 @@ View issues across organization:
 
 Scales efficiently with semantic search.
 
-## Next Steps
+## Next steps
 
 <CardGroup cols={2}>
-  <Card title="Config Inheritance" href="/guides/config-inheritance">
+  <Card title="Config inheritance" href="/guides/config-inheritance">
     Setup shared configurations
   </Card>
-  <Card title="Deployment Guide" href="/guides/deployment">
+  <Card title="Deployment guide" href="/guides/deployment">
     Deploy at scale
   </Card>
 </CardGroup>

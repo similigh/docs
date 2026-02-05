@@ -7,7 +7,7 @@ description: Resolve common issues with Simili Bot
 
 Common issues and how to fix them.
 
-## Installation Issues
+## Installation issues
 
 ### "Configuration not found"
 
@@ -50,7 +50,7 @@ Error: Failed to connect to Qdrant: connection refused
 - Verify firewall allows outbound HTTPS
 - Try connecting from local machine first
 
-## Runtime Issues
+## Runtime issues
 
 ### No comments posted on issues
 
@@ -113,7 +113,7 @@ Verify token has `issues: write` scope.
 3. Try with `--dry-run` to see analysis
 4. Lower similarity threshold first
 
-## GitHub Action Issues
+## GitHub Action issues
 
 ### Workflow doesn't trigger
 
@@ -167,7 +167,7 @@ permissions:
   contents: read
 ```
 
-## API Rate Limiting
+## API rate limiting
 
 ### Gemini rate limit
 
@@ -213,7 +213,7 @@ Error: i/o timeout
 3. For cloud: verify region
 4. Reduce query complexity
 
-## Vector Database Issues
+## Vector database issues
 
 ### "Collection not found"
 
@@ -258,7 +258,7 @@ Error: Storage quota exceeded
 3. Adjust threshold
 4. Check vector quality (ensure Gemini API works)
 
-## Configuration Issues
+## Configuration issues
 
 ### YAML parsing error
 
@@ -302,7 +302,7 @@ export GEMINI_API_KEY="your-key"
 simili process --config simili.yaml --issue test.json
 ```
 
-## Testing Issues
+## Testing issues
 
 ### Dry-run shows different behavior
 
@@ -350,7 +350,7 @@ curl -H "Authorization: token $GITHUB_TOKEN" \
 simili process --dry-run --issue test.json --config simili.yaml
 ```
 
-## Getting Help
+## Getting help
 
 1. Check logs for exact error message
 2. Review configuration for common mistakes
@@ -362,16 +362,16 @@ simili process --dry-run --issue test.json --config simili.yaml
    - Relevant logs
    - Steps to reproduce
 
-## Common Success Signs
+## Common success signs
 
-✅ **Working Properly:**
+✅ **Working properly:**
 - Comments posted to issues
 - Appropriate labels suggested
 - Similar issues found
 - No error messages
 - GitHub Actions shows success
 
-✅ **Logs Show:**
+✅ **Logs show:**
 - "Successfully processed issue"
 - "Found 3 similar issues"
 - "Posted comment to GitHub"

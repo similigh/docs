@@ -7,7 +7,7 @@ description: Configure repositories for Simili Bot
 
 Configure which repositories Simili Bot manages. The behavior of the `repositories` field varies by deployment pattern.
 
-## Pattern-Specific Behavior
+## Pattern-specific behavior
 
 | Pattern | Behavior |
 |---------|----------|
@@ -15,7 +15,7 @@ Configure which repositories Simili Bot manages. The behavior of the `repositori
 | **Pattern B** | List all target repositories in the control repo's config. |
 | **Pattern C** | Each repository lists only itself (usually inheriting shared defaults). |
 
-## Basic Configuration
+## Basic configuration
 
 Each repository in your list gets processed by Simili Bot:
 
@@ -27,9 +27,9 @@ repositories:
     description: "Brief description of repository"
 ```
 
-## Configuration Options
+## Configuration options
 
-### Required Fields
+### Required fields
 
 ```yaml
 repositories:
@@ -37,7 +37,7 @@ repositories:
     repo: "my-repo"        # Repository name
 ```
 
-### Optional Fields
+### Optional fields
 
 ```yaml
 repositories:
@@ -50,7 +50,7 @@ repositories:
       - "api"
 ```
 
-## Full Reference
+## Full reference
 
 | Field | Type | Description | Default | Required |
 |-------|------|-------------|---------|----------|
@@ -60,7 +60,7 @@ repositories:
 | `description` | string | Description for LLM routing | - | No |
 | `labels` | array | Associated labels | - | No |
 
-## Single Repository
+## Single repository
 
 Manage one repository:
 
@@ -74,7 +74,7 @@ repositories:
 
 Configuration applies to all issues in this repository.
 
-## Multiple Repositories
+## Multiple repositories
 
 Manage multiple repositories with shared configuration:
 
@@ -105,7 +105,7 @@ repositories:
     labels: ["devops", "infrastructure"]
 ```
 
-## Disable Specific Repositories
+## Disable specific repositories
 
 Temporarily disable Simili Bot for a repository:
 
@@ -123,7 +123,7 @@ When `enabled: false`:
 - No indexing to vector database
 - Re-enable by changing to `enabled: true`
 
-## Repository Descriptions
+## Repository descriptions
 
 Descriptions help Simili Bot make better routing decisions:
 
@@ -153,7 +153,7 @@ Poor descriptions:
 - "Code repository"
 - "Project files"
 
-## Using Labels
+## Using labels
 
 Associate labels with repositories for organization:
 
@@ -178,11 +178,11 @@ Labels help:
 - Filter searches
 - Team identification
 
-## Configuration Inheritance
+## Configuration inheritance
 
 Share repository configurations across projects:
 
-### Base Configuration
+### Base configuration
 
 Create `.github/base-config.yaml`:
 
@@ -202,7 +202,7 @@ repositories:
     description: "Web UI"
 ```
 
-### Extend with Repository-Specific
+### Extend with repository-specific
 
 Create `.github/simili.yaml`:
 
@@ -223,9 +223,9 @@ Benefits:
 - Easy updates to shared settings
 - Per-repository customization
 
-## Common Patterns
+## Common patterns
 
-### Team-Based Organization
+### Team-based organization
 
 ```yaml
 repositories:
@@ -245,7 +245,7 @@ repositories:
     labels: ["team:infra"]
 ```
 
-### Domain-Based Organization
+### Domain-based organization
 
 ```yaml
 repositories:
@@ -265,7 +265,7 @@ repositories:
     labels: ["domain:notifications"]
 ```
 
-### Maturity-Based
+### Maturity-based
 
 ```yaml
 repositories:
@@ -285,9 +285,9 @@ repositories:
     enabled: false  # Don't process new issues
 ```
 
-## Organization Structure
+## Organization structure
 
-### Single Organization
+### Single organization
 
 If your company is one organization:
 
@@ -300,7 +300,7 @@ repositories:
 
 All repos use the same org.
 
-### Multiple Organizations
+### Multiple organizations
 
 If you have multiple organizations:
 
@@ -335,7 +335,7 @@ Simili Bot validates repositories on startup:
 - Pipeline exits without processing
 - Fix configuration and retry
 
-## Cross-Repository Search
+## Cross-repository search
 
 Enable searching across all configured repositories:
 
@@ -356,9 +356,9 @@ With `cross_repo_search: false`:
 - Reduces noise from unrelated projects
 - Better for independent projects
 
-## Best Practices
+## Best practices
 
-### 1. Use Meaningful Names
+### 1. Use meaningful names
 
 ```yaml
 # Good
@@ -370,7 +370,7 @@ With `cross_repo_search: false`:
   repo: "service1"
 ```
 
-### 2. Provide Descriptions
+### 2. Provide descriptions
 
 ```yaml
 # Good - clear purpose
@@ -380,7 +380,7 @@ description: "REST API for customer data, handling CRUD operations"
 description: "API service"
 ```
 
-### 3. Consistent Organization
+### 3. Consistent organization
 
 ```yaml
 # All together by team
@@ -390,14 +390,14 @@ description: "API service"
   repo: "team-a-lib"
 ```
 
-### 4. Enable Cross-Repo Search
+### 4. Enable cross-repo search
 
 ```yaml
 defaults:
   cross_repo_search: true  # Help identify org-wide duplicates
 ```
 
-### 5. Document in Comments
+### 5. Document in comments
 
 ```yaml
 # Production microservices
@@ -410,17 +410,17 @@ repositories:
     repo: "infrastructure"  # Terraform configs
 ```
 
-## Next Steps
+## Next steps
 
 <CardGroup cols={2}>
   <Card
-    title="Transfer Rules"
+    title="Transfer rules"
     href="/configuration/transfer-rules"
   >
     Setup automatic issue routing
   </Card>
   <Card
-    title="Multi-Repo Pattern Comparison"
+    title="Multi-repo pattern comparison"
     href="/guides/multi-repo-comparison"
   >
     Compare centralized vs distributed setups
