@@ -133,7 +133,7 @@
     "light": "/logo/simili-white.png",
     "dark": "/logo/simili-black.png"
   },
-  "logoHeight": "100px",
+  "logoHeight": "300px",
   "modeToggle": {
     "default": "dark",
     "isHidden": false

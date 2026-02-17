@@ -1,0 +1,9 @@
+/* Force logo size increase */
+a[href="/"] img, 
+img[src*="simili"],
+img[alt*="logo"] {
+    height: 120px !important;
+    max-height: 120px !important;
+    width: auto !important;
+    object-fit: contain !important;
+}
